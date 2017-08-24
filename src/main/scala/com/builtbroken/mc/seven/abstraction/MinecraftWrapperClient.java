@@ -6,6 +6,7 @@ import com.builtbroken.mc.seven.abstraction.world.WorldWrapperClient;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import org.lwjgl.input.Keyboard;
 
@@ -40,6 +41,12 @@ public class MinecraftWrapperClient extends MinecraftWrapper
             return new WorldWrapperClient(world);
         }
         return super.newWorldWrapper(world);
+    }
+
+    @Override
+    public EntityPlayer getLocalPlayer()
+    {
+        return Minecraft.getMinecraft().thePlayer;
     }
 
     @Override
