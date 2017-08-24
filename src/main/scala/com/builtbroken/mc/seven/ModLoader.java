@@ -115,7 +115,7 @@ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
 @Mod(modid = References.ID, name = References.NAME, version = References.VERSION, dependencies = "required-after:Forge;after:TConstruct")
 public class ModLoader extends EngineLoader
 {
-    @SidedProxy(clientSide = "com.builtbroken.mc.seven.client.ClientProxy", serverSide = "com.builtbroken.mc.core.ServerProxy")
+    @SidedProxy(clientSide = "com.builtbroken.mc.seven.client.ClientProxy", serverSide = "com.builtbroken.mc.seven.server.ServerProxy")
     public static CommonProxy proxy;
 
     @Deprecated
