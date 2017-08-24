@@ -1,13 +1,15 @@
 package com.builtbroken.mc.seven.framework.block;
 
 import com.builtbroken.mc.client.json.ClientDataHandler;
-import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
-import com.builtbroken.mc.imp.transform.region.Cube;
-import com.builtbroken.mc.lib.helper.MaterialDict;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.framework.json.processors.JsonGenData;
+import com.builtbroken.mc.imp.transform.region.Cube;
+import com.builtbroken.mc.lib.helper.MaterialDict;
+import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.material.Material;
 
 /**
@@ -112,13 +114,15 @@ public class BlockPropertyData extends JsonGenData
         return renderType;
     }
 
-    @JsonProcessorData(value = "renderType", type = "int")
+    @JsonProcessorData(value = "renderType", type = "int", loadForServer = false)  //TODO move to render data
+    @SideOnly(Side.CLIENT)
     public void setRenderType(int renderType)
     {
         this.renderType = renderType;
     }
 
-    @JsonProcessorData(value = "renderTypeName")
+    @JsonProcessorData(value = "renderTypeName", loadForServer = false)  //TODO move to render data
+    @SideOnly(Side.CLIENT)
     public void setRenderTypeName(String renderType)
     {
         ISimpleBlockRenderingHandler handler = ClientDataHandler.INSTANCE.getBlockRender(renderType);
@@ -137,7 +141,7 @@ public class BlockPropertyData extends JsonGenData
         return color;
     }
 
-    @JsonProcessorData(value = "renderColor", type = "int")
+    @JsonProcessorData(value = "renderColor", type = "int")  //TODO move to render data
     public void setColor(int color)
     {
         this.color = color;
@@ -170,7 +174,7 @@ public class BlockPropertyData extends JsonGenData
         return isAlpha;
     }
 
-    @JsonProcessorData("hasAlphaTextures")
+    @JsonProcessorData(value = "hasAlphaTextures", loadForServer = false) //TODO move to render data
     public void setAlpha(boolean alpha)
     {
         isAlpha = alpha;
