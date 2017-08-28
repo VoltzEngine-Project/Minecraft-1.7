@@ -16,6 +16,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,23 +28,21 @@ import java.util.Map;
  */
 public class WorldWrapper implements IWorld
 {
-    private World world;
     private int dim;
 
     public WorldWrapper(World world)
     {
         dim = world.provider.dimensionId;
-        this.world = world;
     }
 
     public World getWorld()
     {
-        return world;
+        return DimensionManager.getWorld(dim);
     }
 
     public boolean isValid()
     {
-        return world != null; //TODO add is loaded check
+        return getWorld() != null; //TODO add is loaded check
     }
 
     @Override
