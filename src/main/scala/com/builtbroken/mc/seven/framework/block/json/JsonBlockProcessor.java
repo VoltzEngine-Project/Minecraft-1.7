@@ -159,7 +159,8 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         for (int i = 0; i < array.size() && i < 16; i++)
         {
             JsonObject json = array.get(i).getAsJsonObject();
-            MetaData meta = new MetaData();
+            ensureValuesExist(json, "id");
+            MetaData meta = new MetaData(json.get("id").getAsString());
 
             //Reads the meta entry and then returns the meta to assign
             int m = readMetaEntry(block, meta, json, objectList);

@@ -21,6 +21,13 @@ public class MetaData
     public int index;
     public ITileProvider tileEntityProvider;
 
+    public final String ID;
+
+    public MetaData(String id)
+    {
+        this.ID = id;
+    }
+
     /**
      * Adds an ore name to be registered
      *
