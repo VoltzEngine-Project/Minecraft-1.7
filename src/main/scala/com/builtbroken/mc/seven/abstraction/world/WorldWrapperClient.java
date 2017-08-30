@@ -13,9 +13,26 @@ import net.minecraft.world.World;
  */
 public class WorldWrapperClient extends WorldWrapper
 {
+    public final boolean isClient;
+
     public WorldWrapperClient(World world)
     {
         super(world);
+        isClient = world.isRemote;
+    }
+
+    @Override
+    public World getWorld()
+    {
+        if (isClient)
+        {
+            if (getDimID() == Minecraft.getMinecraft().theWorld.provider.dimensionId)
+            {
+                return Minecraft.getMinecraft().theWorld;
+            }
+            return null;
+        }
+        return super.getWorld();
     }
 
     @Override
