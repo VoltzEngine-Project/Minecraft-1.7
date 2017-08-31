@@ -15,6 +15,7 @@ import com.builtbroken.mc.core.content.blast.tnt.ExplosiveHandlerTNT;
 import com.builtbroken.mc.core.content.blocks.BlockHeatedStone;
 import com.builtbroken.mc.core.content.debug.ItemDevData;
 import com.builtbroken.mc.core.content.debug.TileInfInv;
+import com.builtbroken.mc.core.content.parts.CraftingParts;
 import com.builtbroken.mc.core.content.parts.ItemCircuits;
 import com.builtbroken.mc.core.content.parts.ItemCraftingParts;
 import com.builtbroken.mc.core.content.resources.DefinedGenItems;
@@ -404,6 +405,10 @@ public class ModLoader extends EngineLoader
         if (Engine.craftingPartsRequested || forceLoadCraftingParts)
         {
             Engine.itemCraftingParts = getManager().newItem("veCraftingParts", ItemCraftingParts.class);
+            for(CraftingParts part : CraftingParts.values())
+            {
+                OreDictionary.registerOre(part.oreName, part.toStack());
+            }
         }
 
         if (Engine.simpleToolsRequested || forceLoadSimpleTools)
