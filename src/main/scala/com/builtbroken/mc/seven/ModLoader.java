@@ -94,6 +94,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
@@ -101,9 +102,7 @@ import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
 
@@ -391,7 +390,7 @@ public class ModLoader extends EngineLoader
             Engine.itemSheetMetal = getManager().newItem("veSheetMetal", ItemSheetMetal.class);
 
             OreDictionary.registerOre("itemSheetMetal", Engine.itemSheetMetal);
-            for(ItemSheetMetal.SheetMetal metal : ItemSheetMetal.SheetMetal.values())
+            for (ItemSheetMetal.SheetMetal metal : ItemSheetMetal.SheetMetal.values())
             {
                 OreDictionary.registerOre(metal.oreName, metal.stack());
             }
@@ -405,7 +404,7 @@ public class ModLoader extends EngineLoader
         if (Engine.craftingPartsRequested || forceLoadCraftingParts)
         {
             Engine.itemCraftingParts = getManager().newItem("veCraftingParts", ItemCraftingParts.class);
-            for(CraftingParts part : CraftingParts.values())
+            for (CraftingParts part : CraftingParts.values())
             {
                 OreDictionary.registerOre(part.oreName, part.toStack());
             }
@@ -521,23 +520,82 @@ public class ModLoader extends EngineLoader
         //Clean up resources to free up ram
         loader.loadComplete();
 
+        //=========================================================
+        //Test for broken ore dictionary values
+        //=========================================================
         long time = System.nanoTime();
         Engine.logger().error("Checking ore dictionary for bad values");
-        //Fix ore dictionary
         String[] oreNames = OreDictionary.getOreNames();
         for (String name : oreNames)
         {
             ArrayList<ItemStack> stacks = OreDictionary.getOres(name);
-            for (ItemStack stack : stacks)
+            if (stacks != null)
             {
-                if (stack == null || stack.getItem() == null)
+                for (ItemStack stack : stacks)
                 {
-                    Engine.logger().error("\tFound bad ore dictionary value stack='" + stack + "'  ore_name='" + name + "'");
+                    if (stack == null)
+                    {
+                        Engine.logger().error("\tFound null stack value for ore dictionary value '" + name + "'");
+                    }
+                    else if(stack.getItem() == null)
+                    {
+                        Engine.logger().error("\tFound null item value for stack '" + stack + "' for ore dictionary value '" + name + "'");
+                    }
+                    //TODO Fix ore dictionary
                 }
+            }
+            else
+            {
+                Engine.logger().error("\tFound bad ore dictionary value ore_name='" + name + "' containing no items, this can cause issues");
             }
         }
         time = System.nanoTime() - time;
         Engine.logger().error("Done.... took: " + StringHelpers.formatNanoTime(time));
+
+        //=========================================================
+        //Test for broken furnace recipes
+        //=========================================================
+        if(Engine.runningAsDev)
+        {
+            Engine.logger().error("Injecting 3 bad values into furnace recipes to test error removal system works.");
+            GameRegistry.addSmelting((ItemStack)null, (ItemStack)null, 1);
+            GameRegistry.addSmelting(new ItemStack((Block) null, 1, 1), (ItemStack)null, 1);
+            GameRegistry.addSmelting(new ItemStack((Item) null, 1, 1), (ItemStack)null, 1);
+        }
+        time = System.nanoTime();
+        Engine.logger().error("Checking furnace recipes for bad values. Will remove broken values to prevent crashes in VE and other mods depending on non-null data.");
+        Iterator it = FurnaceRecipes.smelting().getSmeltingList().entrySet().iterator();
+        while(it.hasNext())
+        {
+            Map.Entry<ItemStack, ItemStack> entry = (Map.Entry<ItemStack, ItemStack>) it.next();
+
+            if(entry.getKey() == null)
+            {
+                Engine.logger().error("\tFound null input stack value with output of " + entry.getValue());
+                it.remove();
+            }
+            else if(entry.getKey().getItem() == null)
+            {
+                Engine.logger().error("\tFound null input stack item value with output of " + entry.getValue());
+                it.remove();
+            }
+            else if(entry.getValue() == null)
+            {
+                Engine.logger().error("\tFound null output stack value with input of " + entry.getKey());
+                it.remove();
+            }
+            else if(entry.getValue().getItem() == null)
+            {
+                Engine.logger().error("\tFound null output stack item value with input of " + entry.getKey());
+                it.remove();
+            }
+            //Fix for mods like mekanism not checking data before using it
+            //https://github.com/aidancbrady/Mekanism/blob/1.7.10/src/main/java/mekanism/common/Mekanism.java#L1173
+        }
+        time = System.nanoTime() - time;
+        Engine.logger().error("Done.... took: " + StringHelpers.formatNanoTime(time));
+
+        //TODO check for duplication or overlap of furnace recipes
     }
 
     @Mod.EventHandler
