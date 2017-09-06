@@ -14,7 +14,6 @@ import com.builtbroken.mc.core.commands.CommandVE;
 import com.builtbroken.mc.core.content.blast.tnt.ExplosiveHandlerTNT;
 import com.builtbroken.mc.core.content.blocks.BlockHeatedStone;
 import com.builtbroken.mc.core.content.debug.ItemDevData;
-import com.builtbroken.mc.core.content.debug.TileInfInv;
 import com.builtbroken.mc.core.content.parts.CraftingParts;
 import com.builtbroken.mc.core.content.parts.ItemCircuits;
 import com.builtbroken.mc.core.content.parts.ItemCraftingParts;
@@ -263,11 +262,6 @@ public class ModLoader extends EngineLoader
         if (getConfig().get("Content", "LoadScrewDriver", true, "Basic tool for configuring, rotating, and picking up machines.").getBoolean(true))
         {
             Engine.itemWrench = getManager().newItem("ve.screwdriver", new ItemScrewdriver());
-        }
-
-        if (Engine.runningAsDev)
-        {
-            Engine.blockInfInventory = getManager().newBlock(TileInfInv.class);
         }
 
         //TODO move TNT registry to JSON (both ex and items
