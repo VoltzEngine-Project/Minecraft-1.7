@@ -4,6 +4,7 @@ import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.framework.json.processors.JsonGenData;
+import com.builtbroken.mc.framework.json.settings.JsonSettingData;
 import com.builtbroken.mc.imp.transform.region.Cube;
 import com.builtbroken.mc.lib.helper.MaterialDict;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
@@ -11,6 +12,8 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.material.Material;
+
+import java.util.HashMap;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -53,6 +56,8 @@ public class BlockPropertyData extends JsonGenData
     private Cube renderBounds = Cube.FULL;
     private Cube blockBounds = Cube.FULL;
     private Cube selectionBounds = Cube.FULL;
+
+    private HashMap<String, JsonSettingData> settings = new HashMap();
 
 
     public BlockPropertyData(IJsonProcessor processor, String registryKey, String MOD, String name)
@@ -126,7 +131,7 @@ public class BlockPropertyData extends JsonGenData
     public void setRenderTypeName(String renderType)
     {
         ISimpleBlockRenderingHandler handler = ClientDataHandler.INSTANCE.getBlockRender(renderType);
-        if(handler != null)
+        if (handler != null)
         {
             setRenderType(handler.getRenderId());
         }
@@ -152,7 +157,7 @@ public class BlockPropertyData extends JsonGenData
         return isOpaqueCube;
     }
 
-    @JsonProcessorData("isOpaqueCube")
+    @JsonProcessorData(value = {"isOpaqueCube", "isOpaque"})
     public void setOpaqueCube(boolean opaqueCube)
     {
         this.isOpaqueCube = opaqueCube;
@@ -233,7 +238,7 @@ public class BlockPropertyData extends JsonGenData
     public void setBlockBounds(Cube blockBounds)
     {
         this.blockBounds = blockBounds;
-        if(block != null)
+        if (block != null)
         {
             block.setBlockBounds(blockBounds.min().xf(), blockBounds.min().yf(), blockBounds.min().zf(), blockBounds.max().xf(), blockBounds.max().yf(), blockBounds.max().zf());
         }
@@ -248,5 +253,68 @@ public class BlockPropertyData extends JsonGenData
     public void setSelectionBounds(Cube blockBounds)
     {
         this.selectionBounds = blockBounds;
+    }
+
+    //=============================================
+    //========== Settings Handling ================
+    //=============================================
+
+    /**
+     * Get settings data for modifying internal logic
+     * <p>
+     * Settings are independent of normal block functions
+     * and are normally used for tile logic.
+     *
+     * @return map of settings [key : data]
+     */
+    public HashMap<String, JsonSettingData> getSettings()
+    {
+        return settings;
+    }
+
+    /**
+     * Gets the setting for the key
+     *
+     * @param key - key
+     * @return settings data object
+     */
+    public JsonSettingData getSetting(String key)
+    {
+        return settings.get(key);
+    }
+
+    /**
+     * Used to check if a setting exists
+     *
+     * @param key
+     * @return true if it exists
+     */
+    public boolean hasSetting(String key)
+    {
+        return getSetting(key) != null;
+    }
+
+    /**
+     * Gets the value for the given setting as an int
+     * <p>
+     * Use {@link #hasSetting(String)} or {@link #getSetting(String)} to
+     * ensure the value exists so not to use the default return.
+     * <p>
+     * As well if your unsure of the data type best to check
+     * by using {@link #getSetting(String)} and doing an instance
+     * check for {@link com.builtbroken.mc.framework.json.settings.data.JsonSettingInteger}
+     * to be sure
+     *
+     * @param key
+     * @return value or zero if can't be found
+     */
+    public int getSettingAsInt(String key)
+    {
+        JsonSettingData data = getSetting(key);
+        if (data != null)
+        {
+            return data.getInt();
+        }
+        return 0;
     }
 }

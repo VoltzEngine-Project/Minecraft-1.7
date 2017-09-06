@@ -51,6 +51,7 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         MinecraftForge.EVENT_BUS.register(this);
 
         addSubProcessor(References.JSON_LISTENER_KEY, new JsonBlockListenerProcessor());
+        addSubProcessor("settings", new JsonBlockSubProcessorSettings());
     }
 
     @SubscribeEvent

@@ -591,7 +591,7 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
             {
                 List collect = new ArrayList();
                 ((IBoundListener) next).addCollisionBoxesToList(aabb, collect, entity);
-                for (Object object : list)
+                for (Object object : collect)
                 {
                     if (object instanceof AxisAlignedBB && aabb.intersectsWith((AxisAlignedBB) object))
                     {

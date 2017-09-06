@@ -44,6 +44,7 @@ import com.builtbroken.mc.framework.json.override.JsonOverrideProcessor;
 import com.builtbroken.mc.framework.json.processors.event.JsonMissingMapEventProcessor;
 import com.builtbroken.mc.framework.json.processors.explosive.JsonProcessorExplosive;
 import com.builtbroken.mc.framework.json.processors.multiblock.JsonMultiBlockLayoutProcessor;
+import com.builtbroken.mc.framework.json.settings.JsonSettingsProcessor;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.framework.multiblock.BlockMultiblock;
 import com.builtbroken.mc.framework.multiblock.EnumMultiblock;
@@ -308,6 +309,7 @@ public class ModLoader extends EngineLoader
         JsonContentLoader.INSTANCE.add(new JsonOverrideProcessor());
         JsonContentLoader.INSTANCE.add(new JsonMissingMapEventProcessor());
         JsonContentLoader.INSTANCE.add(new JsonProcessorExplosive());
+        JsonContentLoader.INSTANCE.add(JsonSettingsProcessor.INSTANCE);
         //TODO add machine recipes
 
 
