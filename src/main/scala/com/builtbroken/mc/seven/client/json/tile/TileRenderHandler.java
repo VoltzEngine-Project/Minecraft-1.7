@@ -56,6 +56,14 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
                             keysToTry.add(state);
                         }
                     }
+                    else if (tile instanceof ITileNodeHost && ((ITileNodeHost) tile).getTileNode() instanceof IJsonRenderStateProvider)
+                    {
+                        String state = ((IJsonRenderStateProvider) ((ITileNodeHost) tile).getTileNode()).getRenderStateKey(IItemRenderer.ItemRenderType.ENTITY, "tile", tile);
+                        if (state != null)
+                        {
+                            keysToTry.add(state);
+                        }
+                    }
                     keysToTry.add("tile." + direction.name().toLowerCase());
                 }
 
@@ -68,9 +76,13 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
                 for (String key : keysToTry)
                 {
                     IRenderState state = data.getState(key);
-                    if (state instanceof IModelState && ((IModelState) state).render(false))
+                    if (state instanceof IModelState)
                     {
-                        break;
+                        IModelState modelState = (IModelState) state;
+                        if(modelState.render(false))
+                        {
+                            break;
+                        }
                     }
                 }
             }
