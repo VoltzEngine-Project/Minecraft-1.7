@@ -4,6 +4,7 @@ import com.builtbroken.mc.api.tile.access.IRotation;
 import com.builtbroken.mc.api.tile.node.ITileNode;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.client.json.ClientDataHandler;
+import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
 import com.builtbroken.mc.client.json.imp.IModelState;
 import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
@@ -15,13 +16,12 @@ import com.builtbroken.mc.seven.framework.block.listeners.ListenerIterator;
 import com.builtbroken.mc.seven.framework.block.listeners.client.ITileRenderListener;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -41,19 +41,36 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
             RenderData data = getRenderData(tile);
             if (data != null && data.renderType.equalsIgnoreCase("tile"))
             {
-                //Try to get tile specific state
-                String key = getRenderStateKey(tile);
 
-                //Loop default keys
-                for (String de : new String[]{key, "tile", "entity", "item.entity"})
+                //Build key set
+                List<String> keysToTry = new ArrayList();
+
+                ForgeDirection direction = getDirection(tile);
+                if (direction != null)
                 {
-                    if (de != null)
+                    if (tile instanceof IJsonRenderStateProvider)
                     {
-                        IRenderState state = data.getState(de);
-                        if (state instanceof IModelState && ((IModelState) state).render(false))
+                        String state = ((IJsonRenderStateProvider) tile).getRenderStateKey(IItemRenderer.ItemRenderType.ENTITY, "tile", tile);
+                        if (state != null)
                         {
-                            break;
+                            keysToTry.add(state);
                         }
+                    }
+                    keysToTry.add("tile." + direction.name().toLowerCase());
+                }
+
+                keysToTry.add("tile." + tile.getBlockMetadata());
+                keysToTry.add("tile");
+                keysToTry.add("entity");
+                keysToTry.add("item.entity");
+
+                //Loop keys attempt each one
+                for (String key : keysToTry)
+                {
+                    IRenderState state = data.getState(key);
+                    if (state instanceof IModelState && ((IModelState) state).render(false))
+                    {
+                        break;
                     }
                 }
             }
@@ -90,6 +107,18 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
 
     protected RenderData getRenderData(TileEntity tile)
     {
+        if (tile instanceof IJsonRenderStateProvider)
+        {
+            String id = ((IJsonRenderStateProvider) tile).getRenderContentID(IItemRenderer.ItemRenderType.ENTITY, tile);
+            if (id != null)
+            {
+                RenderData data = ClientDataHandler.INSTANCE.getRenderData(id);
+                if (data != null)
+                {
+                    return data;
+                }
+            }
+        }
         if (classToNameMap.isEmpty())
         {
             try
@@ -119,20 +148,20 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
         return ClientDataHandler.INSTANCE.getRenderData(id);
     }
 
-    protected String getRenderStateKey(TileEntity tile)
+    protected ForgeDirection getDirection(TileEntity tile)
     {
         if (tile instanceof IRotation && ((IRotation) tile).getDirection() != ForgeDirection.UNKNOWN && ((IRotation) tile).getDirection() != null)
         {
-            return "tile." + ((IRotation) tile).getDirection().name().toLowerCase();
+            return ((IRotation) tile).getDirection();
         }
         else if (tile instanceof ITileNodeHost)
         {
             ITileNode node = ((ITileNodeHost) tile).getTileNode();
             if (node instanceof IRotation && ((IRotation) node).getDirection() != ForgeDirection.UNKNOWN && ((IRotation) node).getDirection() != null)
             {
-                return "tile." + ((IRotation) node).getDirection().name().toLowerCase();
+                return ((IRotation) node).getDirection();
             }
         }
-        return "tile." + tile.getBlockMetadata();
+        return null;
     }
 }
