@@ -34,6 +34,7 @@ import com.builtbroken.mc.framework.access.global.gui.GuiAccessSystem;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
+import com.builtbroken.mc.framework.json.debug.gui.GuiJsonDebug;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
 import com.builtbroken.mc.framework.multiblock.MultiBlockRenderHelper;
 import com.builtbroken.mc.lib.render.block.BlockRenderHandler;
@@ -271,6 +272,20 @@ public class ClientProxy extends CommonProxy
                     }
                     Minecraft.getMinecraft().displayGuiScreen(new GuiAccessSystem());
                     //TODO cache previous open GUI to restore that GUI
+                }
+            }
+            else if (key == Keyboard.KEY_HOME && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+            {
+                if(JsonContentLoader.INSTANCE == null)
+                {
+                    JsonContentLoader.INSTANCE.debugWindow = new GuiJsonDebug();
+                    JsonContentLoader.INSTANCE.debugWindow.init();
+                    JsonContentLoader.INSTANCE.debugWindow.setVisible(true);
+                    JsonContentLoader.INSTANCE.debug.add(new GuiJsonDebug.DebugListener(JsonContentLoader.INSTANCE.debugWindow));
+                }
+                else
+                {
+                    JsonContentLoader.INSTANCE.debugWindow.setVisible(true);
                 }
             }
         }
