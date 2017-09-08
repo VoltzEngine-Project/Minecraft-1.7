@@ -265,6 +265,12 @@ public class TileEntityWrapper extends TileEntity implements ITileNodeHost, ITil
     }
 
     @Override
+    public void setMetaValue(int meta)
+    {
+        worldObj.setBlockMetadataWithNotify(xi(), yi(), zi(), meta, 3);
+    }
+
+    @Override
     public boolean canAccessWorld()
     {
         return true;
