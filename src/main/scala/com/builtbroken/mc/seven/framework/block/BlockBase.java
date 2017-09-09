@@ -3,9 +3,6 @@ package com.builtbroken.mc.seven.framework.block;
 import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.mc.api.data.ActionResponse;
 import com.builtbroken.mc.api.tile.access.IGuiTile;
-import com.builtbroken.mc.framework.block.imp.*;
-import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
-import com.builtbroken.mc.seven.framework.block.listeners.client.IIconListener;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.imp.IRenderState;
@@ -13,12 +10,15 @@ import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.core.registry.implement.IRegistryInit;
-import com.builtbroken.mc.lib.helper.LanguageUtility;
-import com.builtbroken.mc.lib.helper.WrenchUtility;
+import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.IJsonGenMod;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
+import com.builtbroken.mc.lib.helper.LanguageUtility;
+import com.builtbroken.mc.lib.helper.WrenchUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
+import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
 import com.builtbroken.mc.seven.framework.block.listeners.ListenerIterator;
+import com.builtbroken.mc.seven.framework.block.listeners.client.IIconListener;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -593,9 +593,13 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
                 ((IBoundListener) next).addCollisionBoxesToList(aabb, collect, entity);
                 for (Object object : collect)
                 {
-                    if (object instanceof AxisAlignedBB && aabb.intersectsWith((AxisAlignedBB) object))
+                    if (object instanceof AxisAlignedBB)
                     {
-                        list.add(object);
+                        boolean interest = aabb.intersectsWith((AxisAlignedBB) object);
+                        if (interest)
+                        {
+                            list.add(object);
+                        }
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.builtbroken.mc.seven.client.json.tile;
 
+import com.builtbroken.jlib.data.Colors;
 import com.builtbroken.mc.api.tile.access.IRotation;
 import com.builtbroken.mc.api.tile.node.ITileNode;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
@@ -14,8 +15,16 @@ import com.builtbroken.mc.lib.helper.ReflectionUtility;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.listeners.ListenerIterator;
 import com.builtbroken.mc.seven.framework.block.listeners.client.ITileRenderListener;
+import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
@@ -79,7 +88,7 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
                     if (state instanceof IModelState)
                     {
                         IModelState modelState = (IModelState) state;
-                        if(modelState.render(false))
+                        if (modelState.render(false))
                         {
                             break;
                         }
@@ -113,6 +122,75 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
                     }
                     GL11.glPopMatrix();
                 }
+            }
+        }
+
+        if (Engine.runningAsDev && RenderManager.debugBoundingBox)
+        {
+            try
+            {
+                Block block = tile.getBlockType();
+                if (block != null)
+                {
+                    List list = new ArrayList();
+                    AxisAlignedBB bounds = AxisAlignedBB.getBoundingBox(tile.xCoord, tile.yCoord, tile.zCoord, tile.xCoord + 1, tile.yCoord + 1, tile.zCoord + 1);
+                    if (bounds != null)
+                    {
+                        List<AxisAlignedBB> boxes = new ArrayList();
+                        for (Entity entity : new Entity[]{Minecraft.getMinecraft().thePlayer, new EntityItem(tile.getWorldObj())})
+                        {
+                            block.addCollisionBoxesToList(tile.getWorldObj(), tile.xCoord, tile.yCoord, tile.zCoord, bounds, list, entity);
+
+                            GL11.glPushMatrix();
+                            GL11.glDepthMask(false);
+                            GL11.glDisable(GL11.GL_TEXTURE_2D);
+                            GL11.glDisable(GL11.GL_LIGHTING);
+                            GL11.glDisable(GL11.GL_CULL_FACE);
+                            GL11.glDisable(GL11.GL_BLEND);
+
+                            for (Object object : list)
+                            {
+                                if (object instanceof AxisAlignedBB)
+                                {
+                                    AxisAlignedBB b = (AxisAlignedBB) object;
+                                    boolean contains = false;
+                                    for (AxisAlignedBB bb : boxes)
+                                    {
+                                        if (bb.minX == b.minX && bb.minY == b.minY && bb.minZ == b.minZ
+                                                && bb.maxX == b.maxX && bb.maxY == b.maxY && bb.maxZ == b.maxZ)
+                                        {
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!contains)
+                                    {
+                                        boxes.add(b);
+                                        double bx = b.minX - tile.xCoord;
+                                        double by = b.minY - tile.yCoord;
+                                        double bz = b.minZ - tile.zCoord;
+                                        double bxx = b.maxX - tile.xCoord;
+                                        double byy = b.maxY - tile.yCoord;
+                                        double bzz = b.maxZ - tile.zCoord;
+                                        AxisAlignedBB renderBounds = AxisAlignedBB.getBoundingBox(x + bx, y + by, z + bz, x + bxx, y + byy, z + bzz);
+                                        RenderGlobal.drawOutlinedBoundingBox(renderBounds, entity instanceof EntityPlayer ? Colors.DARK_BLUE.toInt() : Colors.BRIGHT_GREEN.toInt());
+                                    }
+                                }
+                            }
+
+                            GL11.glEnable(GL11.GL_TEXTURE_2D);
+                            GL11.glEnable(GL11.GL_LIGHTING);
+                            GL11.glEnable(GL11.GL_CULL_FACE);
+                            GL11.glDisable(GL11.GL_BLEND);
+                            GL11.glDepthMask(true);
+                            GL11.glPopMatrix();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
             }
         }
     }
