@@ -662,7 +662,24 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     @Override
     public int getLightValue(IBlockAccess access, int x, int y, int z)
     {
-        //TODO implement listeners
+        int lightValue = 0;
+        ListenerIterator it = new ListenerIterator(access, x, y, z, this, "light");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof ILightLevelListener)
+            {
+                int level = ((ILightLevelListener) next).getLightLevel();
+                if (level >= 0 && level <= 15 && level > lightValue)
+                {
+                    lightValue = level;
+                }
+            }
+        }
+        if (lightValue > 0)
+        {
+            return lightValue;
+        }
         if (data != null && data.getLightValue() > 0)
         {
             return data.getLightValue();
