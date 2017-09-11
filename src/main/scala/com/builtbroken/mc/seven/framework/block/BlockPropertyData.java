@@ -47,6 +47,7 @@ public class BlockPropertyData extends JsonGenData
     private boolean supportsRedstone = false;
     private boolean hasComparatorInputOverride = false;
     private boolean isAlpha = false;
+    private boolean canSilkHarvest = false;
     private float hardness = 5;
     private float resistance = 5;
     private int renderType = 0;
@@ -253,6 +254,17 @@ public class BlockPropertyData extends JsonGenData
     public void setSelectionBounds(Cube blockBounds)
     {
         this.selectionBounds = blockBounds;
+    }
+
+    public boolean isCanSilkHarvest()
+    {
+        return canSilkHarvest;
+    }
+
+    @JsonProcessorData(value = "canSilkHarvest")
+    public void setCanSilkHarvest(boolean canSilkHarvest)
+    {
+        this.canSilkHarvest = canSilkHarvest;
     }
 
     //=============================================
