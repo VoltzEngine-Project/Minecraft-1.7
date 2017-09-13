@@ -121,7 +121,10 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         //Meta data loading
         if (blockData.has("subtypes"))
         {
-            blockPropertyData.localization += "." + BlockMeta.META_LOCAL_KEY;
+            if (blockPropertyData.equals("${mod}:${name}"))
+            {
+                blockPropertyData.localization += "." + BlockMeta.META_LOCAL_KEY;
+            }
             block = new BlockMeta(blockPropertyData);
             //Call to load metadata
             readMeta((BlockMeta) block, blockData.get("subtypes").getAsJsonArray(), objectList);
@@ -208,7 +211,7 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         int meta = -1;
         for (Map.Entry<String, JsonElement> entry : json.entrySet())
         {
-            if (entry.getKey().equalsIgnoreCase("localization"))
+            if (entry.getKey().equalsIgnoreCase("localization") || entry.getKey().equalsIgnoreCase("name"))
             {
                 data.localization = entry.getValue().getAsString();
             }
