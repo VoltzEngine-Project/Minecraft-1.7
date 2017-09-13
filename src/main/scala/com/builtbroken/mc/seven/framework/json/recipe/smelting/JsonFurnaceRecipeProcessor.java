@@ -1,6 +1,8 @@
 package com.builtbroken.mc.seven.framework.json.recipe.smelting;
 
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
+import com.builtbroken.mc.framework.json.data.JsonItemEntry;
 import com.builtbroken.mc.seven.framework.block.IJsonBlockSubProcessor;
 import com.builtbroken.mc.seven.framework.json.recipe.JsonRecipeProcessor;
 import com.google.gson.JsonElement;
@@ -14,7 +16,6 @@ import com.google.gson.JsonObject;
  */
 public class JsonFurnaceRecipeProcessor extends JsonRecipeProcessor<JsonFurnaceRecipeData> implements IJsonBlockSubProcessor
 {
-
     @Override
     public String getMod()
     {
@@ -45,17 +46,26 @@ public class JsonFurnaceRecipeProcessor extends JsonRecipeProcessor<JsonFurnaceR
         if (output == null)
         {
             ensureValuesExist(recipeData, "output");
-            output = recipeData.getAsJsonPrimitive("output").getAsString();
+            output = getItemFromJson(recipeData.get("output"));
         }
 
         //Get input
-        Object input = recipeData.getAsJsonPrimitive("input").getAsString();
+        Object input = getItemFromJson(recipeData.get("input"));
+
+        if (input instanceof JsonItemEntry && ((JsonItemEntry) input).nbt != null)
+        {
+            Engine.logger().error("JsonFurnaceRecipeProcessor: NBT is not supported for smelting recipe input, recipe: '" + input + "' -> '" + output + "'");
+        }
 
         //Get XP if present
         float xp = 0;
         if (recipeData.has("xp"))
         {
             xp = recipeData.getAsJsonPrimitive("xp").getAsFloat();
+            if (xp < 0)
+            {
+                throw new IllegalArgumentException("JsonFurnaceRecipeProcessor: xp for recipe must be positive, recipe: '" + input + "' -> '" + output + "'");
+            }
         }
 
         //Make recipe
