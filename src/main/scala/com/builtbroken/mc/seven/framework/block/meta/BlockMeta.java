@@ -114,4 +114,17 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     {
         return "BlockMeta[" + data.name + "]";
     }
+
+    @Override
+    public int getMetaForValue(String value)
+    {
+        for (MetaData data : metaDataValues)
+        {
+            if (data != null && data.ID.equalsIgnoreCase(value))
+            {
+                return data.index;
+            }
+        }
+        return -1;
+    }
 }
