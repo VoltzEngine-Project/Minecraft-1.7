@@ -19,7 +19,6 @@ import com.builtbroken.mc.core.content.parts.ItemCircuits;
 import com.builtbroken.mc.core.content.parts.ItemCraftingParts;
 import com.builtbroken.mc.core.content.resources.DefinedGenItems;
 import com.builtbroken.mc.core.content.resources.GenMaterial;
-import com.builtbroken.mc.core.content.resources.gems.*;
 import com.builtbroken.mc.core.content.resources.items.ItemGenMaterial;
 import com.builtbroken.mc.core.content.resources.items.ItemSheetMetal;
 import com.builtbroken.mc.core.content.resources.load.*;
@@ -337,28 +336,6 @@ public class ModLoader extends EngineLoader
 
         //Register UpdateTicker
         //FMLCommonHandler.instance().bus().register(UpdateTicker$.MODULE$.world());
-
-        if ((getConfig().hasKey("Content", "LoadGemOres") || Engine.gemOresRequested) && getConfig().getBoolean("LoadGemOres", "Content", Engine.gemOresRequested, "Loads up Gem Ores."))
-        {
-            Engine.gemOre = contentRegistry.newBlock("veGemOre", new BlockGemOre("stone"), ItemBlockGemOre.class);
-            GemOres.registerSet(Engine.gemOre, getConfig());
-
-            for (GemTypes types : GemTypes.values())
-            {
-                if (types.isRequested())
-                {
-                    types.item = new ItemGem(types);
-                    contentRegistry.newItem("Gem" + LanguageUtility.capitalizeFirst(types.name) + "Item", types.item);
-                    for (Gems gem : Gems.values())
-                    {
-                        if (gem != Gems.UNKNOWN)
-                        {
-                            OreDictionary.registerOre(types.oreDict + gem.getOreName(), types.stack(gem));
-                        }
-                    }
-                }
-            }
-        }
 
         if (Engine.multiBlockRequested)
         {
