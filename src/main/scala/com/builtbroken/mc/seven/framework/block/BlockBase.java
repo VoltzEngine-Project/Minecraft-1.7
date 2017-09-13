@@ -44,10 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Block generated through a json based file format... Used to reduce dependency on code
@@ -759,29 +756,39 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     public IIcon getIconFromJson(int side, int meta)
     {
         //handle json data
-        RenderData data = getRenderData(meta);
+        final RenderData data = getRenderData(meta);
         if (data != null)
         {
-            for (String key : new String[]{
-                    "block." + meta,
-                    "block." + ForgeDirection.getOrientation(meta).name().toLowerCase(),
-                    "tile." + meta,
-                    "tile." + ForgeDirection.getOrientation(meta).name().toLowerCase(),
-                    "block",
-                    "tile"})
+            final Stack<String> stack = new Stack();
+            getRenderStates(stack, side, meta);
+            while (!stack.isEmpty())
             {
-                IRenderState state = data.getState(key);
-                if (state != null)
+                final String key = stack.pop();
+                if (key != null)
                 {
-                    IIcon icon = state.getIcon(side);
-                    if (icon != null)
+                    final IRenderState state = data.getState(key);
+                    if (state != null)
                     {
-                        return icon;
+                        final IIcon icon = state.getIcon(side);
+                        if (icon != null)
+                        {
+                            return icon;
+                        }
                     }
                 }
             }
         }
         return Blocks.wool.getIcon(0, side);
+    }
+
+    protected void getRenderStates(Stack<String> stack, int side, int meta)
+    {
+        stack.push("tile");
+        stack.push("block");
+        stack.push("tile." + meta);
+        stack.push("tile." + ForgeDirection.getOrientation(meta).name().toLowerCase());
+        stack.push("block." + meta);
+        stack.push("block." + ForgeDirection.getOrientation(meta).name().toLowerCase());
     }
 
     public RenderData getRenderData(int meta)

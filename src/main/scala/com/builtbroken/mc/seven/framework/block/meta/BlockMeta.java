@@ -1,5 +1,6 @@
 package com.builtbroken.mc.seven.framework.block.meta;
 
+import com.builtbroken.mc.framework.json.imp.IJSONMetaConvert;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.BlockPropertyData;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
@@ -11,12 +12,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 6/24/2016.
  */
-public class BlockMeta extends BlockBase
+public class BlockMeta extends BlockBase implements IJSONMetaConvert
 {
     public static final String META_LOCAL_KEY = "${meta}";
     public MetaData[] metaDataValues = new MetaData[16];
@@ -73,6 +75,18 @@ public class BlockMeta extends BlockBase
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    protected void getRenderStates(Stack<String> stack, int side, int meta)
+    {
+        super.getRenderStates(stack, side, meta);
+        MetaData data = metaDataValues[meta];
+        if (data != null)
+        {
+            stack.push(data.ID);
+            stack.push("tile." + data.ID);
         }
     }
 
