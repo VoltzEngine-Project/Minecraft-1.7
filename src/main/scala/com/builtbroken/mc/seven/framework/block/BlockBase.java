@@ -318,13 +318,6 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     }
 
     @Override
-    public int quantityDropped(int meta, int fortune, Random random)
-    {
-        //TODO implement
-        return 1;
-    }
-
-    @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
     {
         ListenerIterator it = new ListenerIterator(world, x, y, z, this, "change");
@@ -877,6 +870,26 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
             }
         }
         return items;
+    }
+
+    @Override
+    public Item getItemDropped(int meta, Random random, int fortune)
+    {
+        if (data != null && data.getItemToDrop() != null)
+        {
+            return data.getItemToDrop();
+        }
+        return Item.getItemFromBlock(this);
+    }
+
+    @Override
+    public int quantityDropped(int meta, int fortune, Random random)
+    {
+        if (data != null)
+        {
+            return data.getItemDropCount();
+        }
+        return 1;
     }
 
     @Override

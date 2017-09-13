@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -106,13 +107,46 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     @Override
     public int damageDropped(int meta)
     {
+        MetaData data = metaDataValues[meta];
+        if (data != null)
+        {
+            if (data.getItemToDrop() != null)
+            {
+                return data.getItemToDrop().getItemDamage();
+            }
+            else if (data.dropIndex >= 0)
+            {
+                return data.dropIndex;
+            }
+        }
         return meta;
     }
 
     @Override
-    public String toString()
+    public Item getItemDropped(int meta, Random random, int fortune)
     {
-        return "BlockMeta[" + data.name + "]";
+        MetaData data = metaDataValues[meta];
+        if (data != null && data.getItemToDrop() != null)
+        {
+            return data.getItemToDrop().getItem();
+        }
+        return super.getItemDropped(meta, random, fortune);
+    }
+
+    @Override
+    public int quantityDropped(int meta, int fortune, Random random)
+    {
+        MetaData data = metaDataValues[meta];
+        if (data != null && data.getItemToDrop() != null)
+        {
+            final int count = Math.max(1, data.getItemToDrop().stackSize);
+            if ((data.randomDropBonus > 0 || data.dropFortuneBonus) && Item.getItemFromBlock(this) != this.getItemDropped(0, random, fortune))
+            {
+                return (count + random.nextInt(data.randomDropBonus)) * (data.dropFortuneBonus ? Math.max(1, fortune) : 1);
+            }
+            return count;
+        }
+        return super.quantityDropped(meta, fortune, random);
     }
 
     @Override
@@ -126,5 +160,11 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
             }
         }
         return -1;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "BlockMeta[" + data.name + "]";
     }
 }

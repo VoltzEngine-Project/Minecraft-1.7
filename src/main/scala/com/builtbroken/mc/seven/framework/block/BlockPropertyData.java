@@ -7,11 +7,13 @@ import com.builtbroken.mc.framework.json.processors.JsonGenData;
 import com.builtbroken.mc.framework.json.settings.JsonSettingData;
 import com.builtbroken.mc.imp.transform.region.Cube;
 import com.builtbroken.mc.lib.helper.MaterialDict;
+import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 
 import java.util.HashMap;
 
@@ -42,6 +44,7 @@ public class BlockPropertyData extends JsonGenData
     //Block data
     private Material material = Material.clay;
     private String materialName = "clay";
+    private String itemToDrop = null;
     private boolean isOpaqueCube;
     private boolean renderAsNormalBlock = true;
     private boolean supportsRedstone = false;
@@ -53,6 +56,7 @@ public class BlockPropertyData extends JsonGenData
     private int renderType = 0;
     private int color = -1;
     private int lightValue;
+    private int itemDropCount = 1;
 
     private Cube renderBounds = Cube.FULL;
     private Cube blockBounds = Cube.FULL;
@@ -265,6 +269,28 @@ public class BlockPropertyData extends JsonGenData
     public void setCanSilkHarvest(boolean canSilkHarvest)
     {
         this.canSilkHarvest = canSilkHarvest;
+    }
+
+    public int getItemDropCount()
+    {
+        return itemDropCount;
+    }
+
+    @JsonProcessorData(value = "itemDropCount", type = "int")
+    public void setItemDropCount(int count)
+    {
+        this.itemDropCount = count;
+    }
+
+    public Item getItemToDrop()
+    {
+        return itemToDrop != null ? InventoryUtility.getItem(itemToDrop) : null; //TODO cache?
+    }
+
+    @JsonProcessorData(value = "itemToDrop")
+    public void setItemToDrop(String item)
+    {
+        this.itemToDrop = item;
     }
 
     //=============================================
