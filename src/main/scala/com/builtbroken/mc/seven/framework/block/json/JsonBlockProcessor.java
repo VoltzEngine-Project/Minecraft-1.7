@@ -35,11 +35,13 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
     public final List<String> blockFields = new ArrayList();
 
     protected final JsonProcessorInjectionMap blockPropDataHandler;
+    protected final JsonProcessorInjectionMap blockMetaDataHandler;
 
     public JsonBlockProcessor()
     {
         super();
         blockPropDataHandler = new JsonProcessorInjectionMap(BlockPropertyData.class);
+        blockMetaDataHandler = new JsonProcessorInjectionMap(MetaData.class);
         //Field entries to prevent sub processors firing
         // each entry need to be lower cased to work
         blockFields.add("id");
@@ -208,23 +210,14 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
      */
     public int readMetaEntry(BlockBase block, MetaData data, JsonObject json, List<IJsonGenObject> objectList)
     {
-        int meta = -1;
         for (Map.Entry<String, JsonElement> entry : json.entrySet())
         {
-            if (entry.getKey().equalsIgnoreCase("localization") || entry.getKey().equalsIgnoreCase("name"))
-            {
-                data.localization = entry.getValue().getAsString();
-            }
-            else if (entry.getKey().equalsIgnoreCase("meta"))
-            {
-                meta = entry.getValue().getAsInt();
-            }
-            else
+            if (!blockMetaDataHandler.handle(data, entry.getKey(), entry.getValue()))
             {
                 processUnknownEntry(entry.getKey(), entry.getValue(), block, data, objectList);
             }
         }
-        return meta;
+        return data.index;
     }
 
     /**
