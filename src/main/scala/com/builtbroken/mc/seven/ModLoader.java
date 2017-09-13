@@ -23,9 +23,6 @@ import com.builtbroken.mc.core.content.resources.gems.*;
 import com.builtbroken.mc.core.content.resources.items.ItemGenMaterial;
 import com.builtbroken.mc.core.content.resources.items.ItemSheetMetal;
 import com.builtbroken.mc.core.content.resources.load.*;
-import com.builtbroken.mc.core.content.resources.ore.BlockOre;
-import com.builtbroken.mc.core.content.resources.ore.ItemBlockOre;
-import com.builtbroken.mc.core.content.resources.ore.MetallicOres;
 import com.builtbroken.mc.core.content.tool.ItemScrewdriver;
 import com.builtbroken.mc.core.content.tool.ItemSheetMetalTools;
 import com.builtbroken.mc.core.content.tool.ItemSimpleCraftingTool;
@@ -102,7 +99,10 @@ import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
 
 import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
 
@@ -338,13 +338,6 @@ public class ModLoader extends EngineLoader
         //Register UpdateTicker
         //FMLCommonHandler.instance().bus().register(UpdateTicker$.MODULE$.world());
 
-        //Late registration of content
-        if ((getConfig().hasKey("Content", "LoadOres") || Engine.metallicOresRequested) && getConfig().getBoolean("LoadOres", "Content", Engine.metallicOresRequested, "Loads up ore blocks and generators. Ore Generation can be disable separate if you want to keep the block for legacy purposes."))
-        {
-            Engine.ore = contentRegistry.newBlock("veStoneOre", new BlockOre("stone"), ItemBlockOre.class);
-            MetallicOres.registerSet(Engine.ore, getConfig());
-        }
-
         if ((getConfig().hasKey("Content", "LoadGemOres") || Engine.gemOresRequested) && getConfig().getBoolean("LoadGemOres", "Content", Engine.gemOresRequested, "Loads up Gem Ores."))
         {
             Engine.gemOre = contentRegistry.newBlock("veGemOre", new BlockGemOre("stone"), ItemBlockGemOre.class);
@@ -452,12 +445,6 @@ public class ModLoader extends EngineLoader
                 }
             }
         }
-        if (Engine.metallicOresRequested)
-        {
-            //Register alt ore names
-            OreDictionary.registerOre("oreBauxite", MetallicOres.BAUXITE.stack());
-            OreDictionary.registerOre("oreMagnesite", MetallicOres.MAGNESITE.stack());
-        }
         Engine.logger().info("Done... Took " + StringHelpers.formatTimeDifference(start, System.nanoTime()));
 
         loader.init();
@@ -475,31 +462,6 @@ public class ModLoader extends EngineLoader
 
         loader.postInit();
         getManager().firePostInit();
-
-        //TODO move to JSON
-        if (Engine.metallicOresRequested)
-        {
-            for (MetallicOres ore : MetallicOres.values())
-            {
-                List<ItemStack> ingots = OreDictionary.getOres(ore.getOreName().replace("ore", "ingot"));
-                if (!ingots.isEmpty())
-                {
-                    ItemStack ingotStack = ingots.get(0);
-                    if (ingotStack == null)
-                    {
-                        int i = 1;
-                        while (ingotStack == null && i < ingots.size())
-                        {
-                            ingotStack = ingots.get(i);
-                        }
-                    }
-                    if (ingotStack != null)
-                    {
-                        GameRegistry.addSmelting(ore.stack(), ingotStack, 0.01f);
-                    }
-                }
-            }
-        }
 
         //Creates world change threads for ques
         actionProcessorThreads = getConfig().getInt("WorldActionThreads", "Multi-Threading", Runtime.getRuntime().availableProcessors() - 1, 0, 100, "Creates the number of threads to be used for processing changes to the world. Used by mods like ICBM to calculate explosives before removing blocks from the world. Try to keep this one less than the number of processors you have. This way minecraft is not chocked out for CPU time.");
