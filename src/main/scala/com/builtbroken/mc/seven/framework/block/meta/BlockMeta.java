@@ -9,6 +9,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
@@ -105,6 +106,12 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     }
 
     @Override
+    public int getDamageValue(World world, int x, int y, int z)
+    {
+        return world.getBlockMetadata(x, y, z); //TODO add override for pickblock, as this was changed to fix it
+    }
+
+    @Override
     public int damageDropped(int meta)
     {
         MetaData data = metaDataValues[meta];
@@ -142,7 +149,8 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
             final int count = Math.max(1, data.getItemToDrop().stackSize);
             if ((data.randomDropBonus > 0 || data.dropFortuneBonus) && Item.getItemFromBlock(this) != this.getItemDropped(0, random, fortune))
             {
-                return (count + random.nextInt(data.randomDropBonus)) * (data.dropFortuneBonus ? Math.max(1, fortune) : 1);
+                int randomBonus = data.randomDropBonus > 0 ? random.nextInt(data.randomDropBonus) : 0;
+                return (count + randomBonus) * (data.dropFortuneBonus ? Math.max(1, fortune) : 1);
             }
             return count;
         }
