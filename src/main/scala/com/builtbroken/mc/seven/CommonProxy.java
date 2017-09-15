@@ -4,16 +4,35 @@ import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.content.entity.EntityExCreeper;
 import com.builtbroken.mc.core.registry.CommonRegistryProxy;
 import com.builtbroken.mc.core.registry.ModManager;
+import com.builtbroken.mc.debug.gui.FrameDebug;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.entity.player.EntityPlayer;
+
+import java.awt.*;
 
 /**
  * Shared loading functionality
  */
 public class CommonProxy extends AbstractProxy
 {
+
+    public FrameDebug debugWindow;
+
+    public void showDebugWindow()
+    {
+        if (Engine.runningAsDev && !GraphicsEnvironment.isHeadless())
+        {
+            if (debugWindow == null)
+            {
+                debugWindow = new FrameDebug();
+                debugWindow.init();
+            }
+            debugWindow.setVisible(true);
+        }
+    }
+
     @Deprecated
     public EntityPlayer getClientPlayer()
     {

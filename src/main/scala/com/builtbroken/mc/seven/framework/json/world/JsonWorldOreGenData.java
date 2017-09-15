@@ -2,7 +2,7 @@ package com.builtbroken.mc.seven.framework.json.world;
 
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.registry.implement.IPostInit;
-import com.builtbroken.mc.framework.json.debug.IJsonDebugDisplay;
+import com.builtbroken.mc.debug.IJsonDebugDisplay;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.framework.json.processors.JsonGenData;
