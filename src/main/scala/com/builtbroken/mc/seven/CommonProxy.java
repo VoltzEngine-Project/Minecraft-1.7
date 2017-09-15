@@ -27,7 +27,6 @@ public class CommonProxy extends AbstractProxy
             if (debugWindow == null)
             {
                 debugWindow = new FrameDebug();
-                debugWindow.init();
             }
             debugWindow.setVisible(true);
         }
