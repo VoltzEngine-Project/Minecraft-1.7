@@ -54,10 +54,13 @@ import com.builtbroken.mc.framework.recipe.item.grid.RecipeShapedOreLarge;
 import com.builtbroken.mc.framework.recipe.item.sheetmetal.RecipeSheetMetal;
 import com.builtbroken.mc.framework.thread.WorkerThread;
 import com.builtbroken.mc.framework.thread.action.WorldActionQue;
+import com.builtbroken.mc.lib.data.ItemStackMap;
+import com.builtbroken.mc.lib.data.ItemStackToStackMap;
 import com.builtbroken.mc.lib.data.heat.HeatedBlockRegistry;
 import com.builtbroken.mc.lib.data.mass.MassRegistry;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.helper.PotionUtility;
+import com.builtbroken.mc.lib.helper.ReflectionUtility;
 import com.builtbroken.mc.lib.helper.recipe.OreNames;
 import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.edit.PlacementDataExtended;
@@ -97,12 +100,9 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
 
@@ -160,6 +160,61 @@ public class ModLoader extends EngineLoader
         config.load();
         References.heatDataConfig.load();
         References.explosiveConfig.load();
+
+        if (config.getBoolean("FurnaceRecipe_MapFix", "BugFixes", true,
+                "Uses reflection to change the data map storing " +
+                        "furnace recipes to prevent null entries from existing. " +
+                        "This is implemented to fix bugs introduced by other mods."))
+        {
+            Map previous = FurnaceRecipes.smelting().getSmeltingList();
+            if (previous.getClass() == HashMap.class)
+            {
+                try
+                {
+                    Field field = ReflectionUtility.getMCField(FurnaceRecipes.class, "field_77604_b", "smeltingList");
+                    field.setAccessible(true);
+                    //Test to make sure we can change the field, should in theory not break existing map
+                    field.set(FurnaceRecipes.smelting(), previous);
+                    //Actual replacement
+                    field.set(FurnaceRecipes.smelting(), new ItemStackToStackMap("furnace recipe map", previous));
+                }
+                catch (Exception e)
+                {
+                    logger().error("Failed to change Minecraft furnace recipe map to a ItemStackToStackMap in order to prevent invalid entries from being registered.", e);
+                }
+            }
+            else
+            {
+                logger().error("Furnace recipe map has already been replaced by '" + previous.getClass() + "' canceling replacement to avoid mod conflict.");
+            }
+        }
+
+        if (config.getBoolean("FurnaceExperience_MapFix", "BugFixes", true,
+                "Uses reflection to change the data map storing " +
+                        "furnace recipes to prevent null entries from existing. " +
+                        "This is implemented to fix bugs introduced by other mods."))
+        {
+
+            try
+            {
+                Field field = ReflectionUtility.getMCField(FurnaceRecipes.class, "field_77605_c", "experienceList");
+                field.setAccessible(true);
+                Map previous = (Map) field.get(FurnaceRecipes.smelting());
+                if (previous.getClass() == HashMap.class)
+                {
+                    //Actual replacement
+                    field.set(FurnaceRecipes.smelting(), new ItemStackMap("furnace experience map", previous));
+                }
+                else
+                {
+                    logger().error("Furnace experience map has already been replaced by '" + previous.getClass() + "' canceling replacement to avoid mod conflict.");
+                }
+            }
+            catch (Exception e)
+            {
+                logger().error("Failed to change Minecraft furnace experience map to a ItemStackMap in order to prevent invalid entries from being registered.", e);
+            }
+        }
 
         NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
 
@@ -532,19 +587,6 @@ public class ModLoader extends EngineLoader
             }
             //Fix for mods like mekanism not checking data before using it
             //https://github.com/aidancbrady/Mekanism/blob/1.7.10/src/main/java/mekanism/common/Mekanism.java#L1173
-        }
-
-        //Debug of system
-        if (Engine.runningAsDev)
-        {
-            if (errorCount < 3)
-            {
-                JOptionPane.showConfirmDialog(null, "Failed to remove broken test recipes");
-            }
-            else
-            {
-                errorCount -= 3;
-            }
         }
 
         time = System.nanoTime() - time;
