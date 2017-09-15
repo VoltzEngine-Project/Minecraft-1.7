@@ -97,6 +97,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.RecipeSorter;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -472,7 +473,7 @@ public class ModLoader extends EngineLoader
                     {
                         Engine.logger().error("\tFound null stack value for ore dictionary value '" + name + "'");
                     }
-                    else if(stack.getItem() == null)
+                    else if (stack.getItem() == null)
                     {
                         Engine.logger().error("\tFound null item value for stack '" + stack + "' for ore dictionary value '" + name + "'");
                     }
@@ -490,45 +491,64 @@ public class ModLoader extends EngineLoader
         //=========================================================
         //Test for broken furnace recipes
         //=========================================================
-        if(Engine.runningAsDev)
+        if (Engine.runningAsDev)
         {
             Engine.logger().error("Injecting 3 bad values into furnace recipes to test error removal system works.");
-            GameRegistry.addSmelting((ItemStack)null, (ItemStack)null, 1);
-            GameRegistry.addSmelting(new ItemStack((Block) null, 1, 1), (ItemStack)null, 1);
-            GameRegistry.addSmelting(new ItemStack((Item) null, 1, 1), (ItemStack)null, 1);
+            GameRegistry.addSmelting((ItemStack) null, (ItemStack) null, 1);
+            GameRegistry.addSmelting(new ItemStack((Block) null, 1, 1), (ItemStack) null, 1);
+            GameRegistry.addSmelting(new ItemStack((Item) null, 1, 1), (ItemStack) null, 1);
         }
         time = System.nanoTime();
         Engine.logger().error("Checking furnace recipes for bad values. Will remove broken values to prevent crashes in VE and other mods depending on non-null data.");
         Iterator it = FurnaceRecipes.smelting().getSmeltingList().entrySet().iterator();
-        while(it.hasNext())
+        int errorCount = 0;
+        while (it.hasNext())
         {
             Map.Entry<ItemStack, ItemStack> entry = (Map.Entry<ItemStack, ItemStack>) it.next();
 
-            if(entry.getKey() == null)
+            if (entry.getKey() == null)
             {
                 Engine.logger().error("\tFound null input stack value with output of " + entry.getValue());
                 it.remove();
+                errorCount++;
             }
-            else if(entry.getKey().getItem() == null)
+            else if (entry.getKey().getItem() == null)
             {
                 Engine.logger().error("\tFound null input stack item value with output of " + entry.getValue());
                 it.remove();
+                errorCount++;
             }
-            else if(entry.getValue() == null)
+            else if (entry.getValue() == null)
             {
                 Engine.logger().error("\tFound null output stack value with input of " + entry.getKey());
                 it.remove();
+                errorCount++;
             }
-            else if(entry.getValue().getItem() == null)
+            else if (entry.getValue().getItem() == null)
             {
                 Engine.logger().error("\tFound null output stack item value with input of " + entry.getKey());
                 it.remove();
+                errorCount++;
             }
             //Fix for mods like mekanism not checking data before using it
             //https://github.com/aidancbrady/Mekanism/blob/1.7.10/src/main/java/mekanism/common/Mekanism.java#L1173
         }
+
+        //Debug of system
+        if (Engine.runningAsDev)
+        {
+            if (errorCount < 3)
+            {
+                JOptionPane.showConfirmDialog(null, "Failed to remove broken test recipes");
+            }
+            else
+            {
+                errorCount -= 3;
+            }
+        }
+
         time = System.nanoTime() - time;
-        Engine.logger().error("Done.... took: " + StringHelpers.formatNanoTime(time));
+        Engine.logger().error("Done.... took: " + StringHelpers.formatNanoTime(time) + " detected " + errorCount + " bad recipes");
 
         //TODO check for duplication or overlap of furnace recipes
     }
