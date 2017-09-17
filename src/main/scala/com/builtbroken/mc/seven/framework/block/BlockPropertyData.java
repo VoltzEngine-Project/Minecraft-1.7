@@ -51,6 +51,7 @@ public class BlockPropertyData extends JsonGenData
     private boolean hasComparatorInputOverride = false;
     private boolean isAlpha = false;
     private boolean isSolid = false;
+    private boolean isNormalCube = false;
     private boolean canSilkHarvest = false;
     private float hardness = 5;
     private float resistance = 5;
@@ -303,6 +304,17 @@ public class BlockPropertyData extends JsonGenData
     public void setSolid(boolean solid)
     {
         isSolid = solid;
+    }
+
+    public boolean isNormalCube()
+    {
+        return isNormalCube;
+    }
+
+    @JsonProcessorData(value = "isNormalCube")
+    public void setNormalCube(boolean normalCube)
+    {
+        isNormalCube = normalCube;
     }
 
     //=============================================

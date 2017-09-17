@@ -638,22 +638,29 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     @Override
     public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side)
     {
-        //TODO implement
+        //TODO implement listeners
         return super.shouldSideBeRendered(access, x, y, z, side);
     }
 
     @Override
     public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int side)
     {
-        //TODO implement
+        //TODO implement listeners
         return data.isSolid() || super.isBlockSolid(access, x, y, z, side);
     }
 
     @Override
     public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
     {
-        //TODO implement
+        //TODO implement listeners
         return data.isSolid() || isNormalCube(world, x, y, z);
+    }
+
+    @Override
+    public boolean isNormalCube(IBlockAccess world, int x, int y, int z)
+    {
+        //TODO implement listeners
+        return data.isNormalCube() || getMaterial().isOpaque() && renderAsNormalBlock() && !canProvidePower();
     }
 
     @Override
