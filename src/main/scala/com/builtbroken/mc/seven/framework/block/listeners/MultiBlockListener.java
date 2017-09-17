@@ -65,22 +65,25 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public void update(long ticks)
     {
-        long offsetTick = (ticks + (Math.abs(this.xi() + this.yi() + this.zi())));
-        if (ticks == 0 && buildFirstTick)
+        if(world().isServer())
         {
-            layoutKey = layoutKey != null ? layoutKey.toLowerCase() : "";
-            if (MultiBlockHelper.canBuild(world().unwrap(), getMultiTileHost(), true))
+            long offsetTick = (ticks + (Math.abs(this.xi() + this.yi() + this.zi())));
+            if (ticks == 0 && buildFirstTick)
+            {
+                layoutKey = layoutKey != null ? layoutKey.toLowerCase() : "";
+                if (MultiBlockHelper.canBuild(world().unwrap(), getMultiTileHost(), true))
+                {
+                    MultiBlockHelper.buildMultiBlock(world().unwrap(), getMultiTileHost() != null ? getMultiTileHost() : this, true, true);
+                }
+                else
+                {
+                    Engine.logger().error("Can not build multiblock structure at location " + new Location(world().unwrap(), xi(), yi(), zi()) + " for " + getMultiTileHost());
+                }
+            }
+            else if (offsetTick % 200 == 0)
             {
                 MultiBlockHelper.buildMultiBlock(world().unwrap(), getMultiTileHost() != null ? getMultiTileHost() : this, true, true);
             }
-            else
-            {
-                Engine.logger().error("Can not build multiblock structure at location " + new Location(world().unwrap(), xi(), yi(), zi()) + " for " + getMultiTileHost());
-            }
-        }
-        else if (offsetTick % 200 == 0)
-        {
-            MultiBlockHelper.buildMultiBlock(world().unwrap(), getMultiTileHost() != null ? getMultiTileHost() : this, true, true);
         }
     }
 
@@ -237,7 +240,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public ActionResponse canPlaceAt(IEntityData entity)
     {
-        return (!doRotation ||MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity)), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
+        return (!doRotation ||MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity)), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
     }
 
     @Override
