@@ -646,7 +646,14 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int side)
     {
         //TODO implement
-        return super.isBlockSolid(access, x, y, z, side);
+        return data.isSolid() || super.isBlockSolid(access, x, y, z, side);
+    }
+
+    @Override
+    public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
+    {
+        //TODO implement
+        return data.isSolid() || isNormalCube(world, x, y, z);
     }
 
     @Override

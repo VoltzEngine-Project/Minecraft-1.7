@@ -50,6 +50,7 @@ public class BlockPropertyData extends JsonGenData
     private boolean supportsRedstone = false;
     private boolean hasComparatorInputOverride = false;
     private boolean isAlpha = false;
+    private boolean isSolid = false;
     private boolean canSilkHarvest = false;
     private float hardness = 5;
     private float resistance = 5;
@@ -291,6 +292,17 @@ public class BlockPropertyData extends JsonGenData
     public void setItemToDrop(String item)
     {
         this.itemToDrop = item;
+    }
+
+    public boolean isSolid()
+    {
+        return isSolid;
+    }
+
+    @JsonProcessorData(value = "isSolid")
+    public void setSolid(boolean solid)
+    {
+        isSolid = solid;
     }
 
     //=============================================
