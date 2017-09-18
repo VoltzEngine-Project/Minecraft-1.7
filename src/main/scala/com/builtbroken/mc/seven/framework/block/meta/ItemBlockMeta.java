@@ -43,10 +43,10 @@ public class ItemBlockMeta extends ItemBlockBase implements IJSONMetaConvert
 
             //Assemble lang key, only called once per run
             String lang = getUnlocalizedName();
-            lang = lang.replace(BlockMeta.META_LOCAL_KEY, "" + damage);
+            lang = lang.replace(BlockMeta.META_INDEX_LOCALIZATION_KEY, "" + damage);
             if (getBlockJson().metaDataValues[damage] != null && getBlockJson().metaDataValues[damage].localization != null)
             {
-                lang = lang.replace("${metaLocalization}", getBlockJson().metaDataValues[damage].localization);
+                lang = lang.replace(BlockMeta.META_NAME_LOCALIZATION_KEY, getBlockJson().metaDataValues[damage].localization);
             }
 
             //Cache and return

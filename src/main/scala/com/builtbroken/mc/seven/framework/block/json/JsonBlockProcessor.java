@@ -125,7 +125,7 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         {
             if (blockPropertyData.equals("${mod}:${name}"))
             {
-                blockPropertyData.localization += "." + BlockMeta.META_LOCAL_KEY;
+                blockPropertyData.localization += "." + BlockMeta.META_INDEX_LOCALIZATION_KEY;
             }
             block = new BlockMeta(blockPropertyData);
             //Call to load metadata

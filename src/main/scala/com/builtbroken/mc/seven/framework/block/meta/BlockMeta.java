@@ -22,7 +22,9 @@ import java.util.Stack;
  */
 public class BlockMeta extends BlockBase implements IJSONMetaConvert
 {
-    public static final String META_LOCAL_KEY = "${meta}";
+    public static final String META_INDEX_LOCALIZATION_KEY = "${meta}";
+    public static final String META_NAME_LOCALIZATION_KEY = "${metaLocalization}";
+
     public MetaData[] metaDataValues = new MetaData[16];
 
     public BlockMeta(BlockPropertyData data)
