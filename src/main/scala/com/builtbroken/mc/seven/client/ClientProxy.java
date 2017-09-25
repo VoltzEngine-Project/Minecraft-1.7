@@ -41,6 +41,7 @@ import com.builtbroken.mc.framework.multiblock.MultiBlockRenderHelper;
 import com.builtbroken.mc.lib.render.block.BlockRenderHandler;
 import com.builtbroken.mc.lib.world.map.block.ExtendedBlockDataManager;
 import com.builtbroken.mc.lib.world.map.data.ChunkData;
+import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.seven.CommonProxy;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapperClient;
@@ -62,6 +63,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -75,6 +77,7 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The Voltz Engine client proxy
@@ -261,16 +264,48 @@ public class ClientProxy extends CommonProxy
         return false;
     }
 
+    public void bakeItemTextures()
+    {
+        //ItemTextureBaker.saveTextureToFolder("renders/test", new ItemStack(Engine.itemWrench));
+
+        InventoryUtility.mapItems();
+        for (Map.Entry<String, List<Item>> entry : InventoryUtility.getModToItems().entrySet())
+        {
+            if (entry.getValue() != null && entry.getValue() != null)
+            {
+                for (Item item : entry.getValue())
+                {
+                    List list = new ArrayList();
+                    for (CreativeTabs tab : item.getCreativeTabs())
+                    {
+                        item.getSubItems(item, tab, list);
+                    }
+
+                    //TODO remove duplications
+
+                    for (Object object : list)
+                    {
+                        if (object instanceof ItemStack)
+                        {
+                            ItemTextureBaker.saveTextureToFolder("renders/" + entry.getKey(), (ItemStack) object);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @SubscribeEvent
     public void keyHandler(InputEvent.KeyInputEvent e)
     {
         final int key = Keyboard.getEventKey();
         if (Minecraft.getMinecraft() != null) //Prevent key bind from working on loading screen and main menu
         {
+            boolean crtl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) || Keyboard.isKeyDown(Keyboard.KEY_RCONTROL);
             if (Minecraft.getMinecraft().theWorld != null && Minecraft.getMinecraft().thePlayer != null)
             {
                 //TODO add config for key binding
-                if (key == Keyboard.KEY_GRAVE && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
+                if (key == Keyboard.KEY_GRAVE && crtl)
                 {
                     if (!(Minecraft.getMinecraft().currentScreen instanceof GuiAccessSystem)) //TODO check previous GUI to prevent bugs (e.g. prevent opening on death screen)
                     {
@@ -282,10 +317,16 @@ public class ClientProxy extends CommonProxy
                         //TODO cache previous open GUI to restore that GUI
                     }
                 }
-            }
-            else if (key == Keyboard.KEY_HOME && Keyboard.isKeyDown(Keyboard.KEY_LCONTROL))
-            {
-                showDebugWindow();
+                else if (key == Keyboard.KEY_HOME && crtl)
+                {
+                    showDebugWindow();
+                }
+                else if (key == Keyboard.KEY_END && crtl)
+                {
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("Starting item render baking");
+                    bakeItemTextures();
+                    Minecraft.getMinecraft().thePlayer.sendChatMessage("Done baking item renders");
+                }
             }
         }
     }
