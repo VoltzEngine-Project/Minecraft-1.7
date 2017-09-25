@@ -20,7 +20,6 @@ import com.builtbroken.mc.core.content.parts.ItemCraftingParts;
 import com.builtbroken.mc.core.content.resources.DefinedGenItems;
 import com.builtbroken.mc.core.content.resources.GenMaterial;
 import com.builtbroken.mc.core.content.resources.items.ItemGenMaterial;
-import com.builtbroken.mc.core.content.resources.items.ItemSheetMetal;
 import com.builtbroken.mc.core.content.resources.load.*;
 import com.builtbroken.mc.core.content.tool.ItemScrewdriver;
 import com.builtbroken.mc.core.content.tool.ItemSheetMetalTools;
@@ -36,6 +35,7 @@ import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
 import com.builtbroken.mc.framework.explosive.TriggerNBTBuilder;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
+import com.builtbroken.mc.framework.json.event.JsonEntryCreationEvent;
 import com.builtbroken.mc.framework.json.override.JsonOverrideProcessor;
 import com.builtbroken.mc.framework.json.processors.event.JsonMissingMapEventProcessor;
 import com.builtbroken.mc.framework.json.processors.explosive.JsonProcessorExplosive;
@@ -83,6 +83,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
@@ -340,6 +341,18 @@ public class ModLoader extends EngineLoader
         OreDictionary.registerOre(OreNames.FLINT, Items.flint);
     }
 
+    @SubscribeEvent
+    public void referenceData(JsonEntryCreationEvent entryCreationEvent)
+    {
+        if (entryCreationEvent.object instanceof Item)
+        {
+            if ("veSheetMetal".equalsIgnoreCase(entryCreationEvent.id))
+            {
+                Engine.itemSheetMetal = (Item) entryCreationEvent.object;
+            }
+        }
+    }
+
     @Override
     public void loadJsonContentHandlers()
     {
@@ -409,13 +422,6 @@ public class ModLoader extends EngineLoader
         if (Engine.sheetMetalRequested || forceLoadSheetMetal)
         {
             Engine.itemSheetMetalTools = getManager().newItem("veSheetMetalTools", ItemSheetMetalTools.class);
-            Engine.itemSheetMetal = getManager().newItem("veSheetMetal", ItemSheetMetal.class);
-
-            OreDictionary.registerOre("itemSheetMetal", Engine.itemSheetMetal);
-            for (ItemSheetMetal.SheetMetal metal : ItemSheetMetal.SheetMetal.values())
-            {
-                OreDictionary.registerOre(metal.oreName, metal.stack());
-            }
         }
 
         if (Engine.circuitsRequested || forceLoadCircuits)

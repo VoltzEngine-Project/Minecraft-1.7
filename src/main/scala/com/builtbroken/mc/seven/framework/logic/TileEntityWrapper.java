@@ -310,9 +310,9 @@ public class TileEntityWrapper extends TileEntity implements ITileNodeHost, ITil
     }
 
     @Override
-    public String uniqueContentID()
+    public String getUniqueID()
     {
-        return getTileNode().uniqueContentID();
+        return getTileNode().getUniqueID();
     }
 
     @Override

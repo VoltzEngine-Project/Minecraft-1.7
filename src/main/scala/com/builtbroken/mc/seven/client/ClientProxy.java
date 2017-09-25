@@ -6,6 +6,7 @@ import com.builtbroken.mc.client.effects.providers.VEProviderLaserBeam;
 import com.builtbroken.mc.client.effects.providers.VEProviderRocketTrail;
 import com.builtbroken.mc.client.effects.providers.VEProviderShockWave;
 import com.builtbroken.mc.client.effects.providers.VEProviderSmokeStream;
+import com.builtbroken.mc.client.helpers.ItemTextureBaker;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
 import com.builtbroken.mc.client.json.audio.AudioJsonProcessor;
@@ -89,7 +90,7 @@ public class ClientProxy extends CommonProxy
     @Override
     public void preInit()
     {
-        if(Engine.runningAsDev)
+        if (Engine.runningAsDev)
         {
             showDebugWindow();
         }

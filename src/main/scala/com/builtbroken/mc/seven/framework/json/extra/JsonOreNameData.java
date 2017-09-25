@@ -42,4 +42,10 @@ public class JsonOreNameData extends JsonGenData implements IPostInit
     {
         return null;
     }
+
+    @Override
+    public String getUniqueID()
+    {
+        return null;
+    }
 }
