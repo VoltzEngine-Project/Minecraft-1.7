@@ -54,6 +54,7 @@ import com.builtbroken.mc.framework.recipe.item.grid.RecipeShapedOreLarge;
 import com.builtbroken.mc.framework.recipe.item.sheetmetal.RecipeSheetMetal;
 import com.builtbroken.mc.framework.thread.WorkerThread;
 import com.builtbroken.mc.framework.thread.action.WorldActionQue;
+import com.builtbroken.mc.framework.thread.delay.DelayedActionHandler;
 import com.builtbroken.mc.lib.data.ItemStackMap;
 import com.builtbroken.mc.lib.data.ItemStackToStackMap;
 import com.builtbroken.mc.lib.data.heat.HeatedBlockRegistry;
@@ -237,6 +238,7 @@ public class ModLoader extends EngineLoader
         FMLCommonHandler.instance().bus().register(TileTaskTickHandler.INSTANCE);
 
         FMLCommonHandler.instance().bus().register(proxy);
+        FMLCommonHandler.instance().bus().register(new DelayedActionHandler());
 
         //Load heat configs
         enabledHeatMap = References.heatDataConfig.getBoolean("EnabledHeatMap", Configuration.CATEGORY_GENERAL, true, "Heat map handles interaction of heat based energy and the world. Disable only if it causes issues or you want to reduce world file size. If disabled it can prevent machines from working.");
