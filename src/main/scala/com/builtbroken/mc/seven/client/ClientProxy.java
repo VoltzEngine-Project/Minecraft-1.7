@@ -2,10 +2,7 @@ package com.builtbroken.mc.seven.client;
 
 import com.builtbroken.mc.client.ExplosiveRegistryClient;
 import com.builtbroken.mc.client.effects.VisualEffectRegistry;
-import com.builtbroken.mc.client.effects.providers.VEProviderLaserBeam;
-import com.builtbroken.mc.client.effects.providers.VEProviderRocketTrail;
-import com.builtbroken.mc.client.effects.providers.VEProviderShockWave;
-import com.builtbroken.mc.client.effects.providers.VEProviderSmokeStream;
+import com.builtbroken.mc.client.effects.providers.*;
 import com.builtbroken.mc.client.helpers.ItemTextureBaker;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
@@ -126,6 +123,7 @@ public class ClientProxy extends CommonProxy
         VisualEffectRegistry.addEffectProvider(new VEProviderLaserBeam());
         VisualEffectRegistry.addEffectProvider(new VEProviderSmokeStream());
         VisualEffectRegistry.addEffectProvider(new VEProviderRocketTrail());
+        VisualEffectRegistry.addEffectProvider(new VEProviderBlood());
 
         MinecraftForge.EVENT_BUS.register(this);
     }

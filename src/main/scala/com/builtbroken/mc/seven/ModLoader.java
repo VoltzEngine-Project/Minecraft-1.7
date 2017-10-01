@@ -32,6 +32,8 @@ import com.builtbroken.mc.core.handler.InteractionHandler;
 import com.builtbroken.mc.core.handler.SaveManager;
 import com.builtbroken.mc.core.handler.TileTaskTickHandler;
 import com.builtbroken.mc.core.registry.ModManager;
+import com.builtbroken.mc.framework.entity.effect.EntityEffectHandler;
+import com.builtbroken.mc.framework.entity.effect.effects.BleedingEffect;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
 import com.builtbroken.mc.framework.explosive.TriggerNBTBuilder;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
@@ -332,6 +334,9 @@ public class ModLoader extends EngineLoader
         //Creeper skull
         ExplosiveRegistry.registerExplosiveItem(new ItemStack(Items.skull, 1, 4), ExplosiveRegistry.get("TNT"), tntValue / 10.0);
 
+        //Register effects
+        EntityEffectHandler.addEffectCreator(EntityEffectHandler.BLEEDING_EFFECT, e -> new BleedingEffect(e));
+
         //Call loader
         loader.preInit();
         //Claim json content
@@ -621,6 +626,10 @@ public class ModLoader extends EngineLoader
             Thread thread = new WorkerThread("" + i);
             thread.start();
         }
+
+        //Make sure these events only run server side
+        MinecraftForge.EVENT_BUS.register(EntityEffectHandler.INSTANCE);
+        FMLCommonHandler.instance().bus().register(EntityEffectHandler.INSTANCE);
     }
 
     @Mod.EventHandler
