@@ -322,9 +322,9 @@ public class TileEntityWrapper extends TileEntity implements ITileNodeHost, ITil
     }
 
     @Override
-    public String modID()
+    public String getMod()
     {
-        return getTileNode().modID();
+        return getTileNode().getMod();
     }
 
     @Override

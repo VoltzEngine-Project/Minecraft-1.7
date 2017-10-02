@@ -167,16 +167,16 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
                 {
                     if (tile instanceof ITileNodeHost && ((ITileNodeHost) tile).getTileNode() != null)
                     {
-                        ids.add((((ITileNodeHost) tile).getTileNode()).modID() + ":" + (((ITileNodeHost) tile).getTileNode()).uniqueContentID());
+                        ids.add((((ITileNodeHost) tile).getTileNode()).getMod() + ":" + (((ITileNodeHost) tile).getTileNode()).uniqueContentID());
                     }
                     if (tile instanceof IModObject)
                     {
-                        ids.add(((IModObject) tile).modID() + ":" + ((IModObject) tile).uniqueContentID());
+                        ids.add(((IModObject) tile).getMod() + ":" + ((IModObject) tile).uniqueContentID());
                     }
                 }
                 if (block instanceof IModObject)
                 {
-                    ids.add(((IModObject) block).modID() + ":" + ((IModObject) block).uniqueContentID());
+                    ids.add(((IModObject) block).getMod() + ":" + ((IModObject) block).uniqueContentID());
                 }
 
                 for (String id : ids)
