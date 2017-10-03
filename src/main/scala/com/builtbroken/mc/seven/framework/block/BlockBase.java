@@ -41,6 +41,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -166,8 +167,103 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     @Override
     public float getBlockHardness(World world, int x, int y, int z)
     {
-        //TODO implement
-        return data.getHardness();
+        float hardness = data.getHardness();
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "hardness");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof IHardnessListener)
+            {
+                float h = ((IHardnessListener) next).getBlockHardness();
+                if (h > hardness)
+                {
+                    //Highest hardness wins
+                    hardness = h;
+                }
+            }
+        }
+        return hardness;
+    }
+
+    @Override
+    public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
+    {
+        final int metadata = world.getBlockMetadata(x, y, z);
+        float hardness = Math.max(0, data.getHardness());
+
+        //Get player relative hardness
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "hardness");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof IHardnessListener)
+            {
+                float h = ((IHardnessListener) next).getBlockHardness(player);
+                if (h > hardness)
+                {
+                    //Highest hardness wins
+                    hardness = h;
+                }
+            }
+        }
+
+        boolean canHarvest = canHarvestBlock(player, world, x, y, z, metadata);
+
+        //Get break speed
+        float breakSpeed;
+        if (!canHarvest) //TODO build calculator into debug GUI to see [break speed vs hardness vs canBreak]
+        {
+            breakSpeed = player.getBreakSpeed(this, true, metadata, x, y, z) / hardness / 100F;
+        }
+        else
+        {
+            breakSpeed = player.getBreakSpeed(this, false, metadata, x, y, z) / hardness / 30F;
+        }
+
+        return breakSpeed;
+    }
+
+    /**
+     * Location based version of {@link #canHarvestBlock(EntityPlayer, int)}
+     *
+     * @param player
+     * @param world
+     * @param x
+     * @param y
+     * @param z
+     * @param meta
+     * @return
+     */
+    public boolean canHarvestBlock(EntityPlayer player, World world, int x, int y, int z, int meta)
+    {
+        if (ForgeHooks.canHarvestBlock(this, player, meta))
+        {
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+            while (it.hasNext())
+            {
+                ITileEventListener next = it.next();
+                if (next instanceof IDestroyedListener && !((IDestroyedListener) next).canHarvest(player, meta))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String getHarvestTool(int metadata)
+    {
+        //TODO add listener support
+        return super.getHarvestTool(metadata);
+    }
+
+    @Override
+    public int getHarvestLevel(int metadata)
+    {
+        //TODO add listener support
+        return super.getHarvestLevel(metadata);
     }
 
     @Override
