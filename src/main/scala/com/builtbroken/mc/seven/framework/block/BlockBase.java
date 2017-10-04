@@ -685,7 +685,11 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
                     Object o = ((IGuiTile) tile).getServerGuiElement(id, player);
                     if (o != null)
                     {
-                        player.openGui(mod, id, world, x, y, z);
+                        //open GUI only on server, but still mark as activated to consume action correctly
+                        if (!world.isRemote)
+                        {
+                            player.openGui(mod, id, world, x, y, z);
+                        }
                         activated = true;
                     }
                 }
