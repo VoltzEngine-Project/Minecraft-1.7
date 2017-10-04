@@ -41,7 +41,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -189,7 +188,7 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
     {
         final int metadata = world.getBlockMetadata(x, y, z);
-        float hardness = Math.max(0, data.getHardness());
+        float hardness = 0;
 
         //Get player relative hardness
         ListenerIterator it = new ListenerIterator(world, x, y, z, this, "hardness");
@@ -205,6 +204,12 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
                     hardness = h;
                 }
             }
+        }
+
+        //Only use default hardness if no listener provided hardness
+        if(hardness == 0)
+        {
+            hardness = data.getHardness();
         }
 
         boolean canHarvest = canHarvestBlock(player, world, x, y, z, metadata);
@@ -236,8 +241,37 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
      */
     public boolean canHarvestBlock(EntityPlayer player, World world, int x, int y, int z, int meta)
     {
-        if (ForgeHooks.canHarvestBlock(this, player, meta))
+        //Material doesn't care, we don't care
+        if (getMaterial().isToolNotRequired())
         {
+            return true;
+        }
+
+        final ItemStack stack = player.inventory.getCurrentItem();
+
+        //pull harvest data from block
+        final String desiredHarvestTool = getHarvestTool(world, x, y, z, meta);
+        final int desiredHarvestLevel = getHarvestLevel(world, x, y, z, meta);
+
+        //If no item or tool, pop harvest even
+        if (stack == null || desiredHarvestTool == null)
+        {
+            return player.canHarvestBlock(this);
+        }
+
+        //Get harvest level from tool
+        final int toolLevel = stack.getItem().getHarvestLevel(stack, desiredHarvestTool);
+
+        //If less than zero, then pop harvest event
+        if (toolLevel < 0)
+        {
+            return player.canHarvestBlock(this);
+        }
+
+        //Check tool level against harvest level
+        if (toolLevel >= desiredHarvestLevel)
+        {
+            //Check listeners
             ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
             while (it.hasNext())
             {
@@ -247,22 +281,91 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
                     return false;
                 }
             }
+
+            //No fails, then we can harvest
             return true;
         }
         return false;
     }
 
+    public String getHarvestTool(World world, int x, int y, int z, int meta)
+    {
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "tool");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof IToolListener)
+            {
+                String tool = ((IToolListener) next).getBlockHarvestTool(meta);
+                if (tool == null || !tool.isEmpty())
+                {
+                    return tool;
+                }
+            }
+        }
+        return getHarvestTool(meta);
+    }
+
     @Override
     public String getHarvestTool(int metadata)
     {
-        //TODO add listener support
+        List<ITileEventListener> toolListeners = listeners.get("tool");
+        if (toolListeners != null)
+        {
+            for (ITileEventListener next : toolListeners)
+            {
+                if (next instanceof IToolListener)
+                {
+                    String tool = ((IToolListener) next).getHarvestTool(metadata);
+                    if (tool == null || !tool.isEmpty())
+                    {
+                        return tool;
+                    }
+                }
+            }
+        }
         return super.getHarvestTool(metadata);
+    }
+
+    public int getHarvestLevel(World world, int x, int y, int z, int meta)
+    {
+        int level = getHarvestLevel(meta);
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "tool");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof IToolListener)
+            {
+                int l = ((IToolListener) next).getHarvestLevel(meta);
+                if (l > level)
+                {
+                    level = l;
+                }
+            }
+        }
+        return level;
     }
 
     @Override
     public int getHarvestLevel(int metadata)
     {
-        //TODO add listener support
+        List<ITileEventListener> toolListeners = listeners.get("tool");
+        if (toolListeners != null)
+        {
+            int level = super.getHarvestLevel(metadata);
+            for (ITileEventListener next : toolListeners)
+            {
+                if (next instanceof IToolListener)
+                {
+                    int l = ((IToolListener) next).getBlockHarvestLevel(metadata);
+                    if (l > level)
+                    {
+                        level = l;
+                    }
+                }
+            }
+            return level;
+        }
         return super.getHarvestLevel(metadata);
     }
 
