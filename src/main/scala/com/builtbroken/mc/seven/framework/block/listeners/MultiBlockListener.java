@@ -246,7 +246,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     protected boolean isValidForRuntime()
     {
-        return isServer();
+        return true;
     }
 
     public static class Builder implements ITileEventListenerBuilder
