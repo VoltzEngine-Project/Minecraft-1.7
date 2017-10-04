@@ -207,7 +207,7 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
         }
 
         //Only use default hardness if no listener provided hardness
-        if(hardness == 0)
+        if (hardness == 0)
         {
             hardness = data.getHardness();
         }
@@ -686,7 +686,7 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
                     if (o != null)
                     {
                         player.openGui(mod, id, world, x, y, z);
-                        return true;
+                        activated = true;
                     }
                 }
             }
