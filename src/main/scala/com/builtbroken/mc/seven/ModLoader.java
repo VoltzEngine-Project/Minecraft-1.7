@@ -67,7 +67,7 @@ import com.builtbroken.mc.lib.helper.ReflectionUtility;
 import com.builtbroken.mc.lib.helper.recipe.OreNames;
 import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.edit.PlacementDataExtended;
-import com.builtbroken.mc.lib.world.map.TileMapRegistry;
+import com.builtbroken.mc.lib.world.map.tile.TileMapRegistry;
 import com.builtbroken.mc.lib.world.map.radar.RadarRegistry;
 import com.builtbroken.mc.lib.world.map.radio.RadioRegistry;
 import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
