@@ -1191,7 +1191,7 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
         }
         if (itemStack != null && itemStack.getItem() != null)
         {
-            InventoryUtility.dropItemStack(world, x, y, z, itemStack, 0, 0);
+            InventoryUtility.dropItemStack(world, x + 0.5, y + 0.5, z + 0.5, itemStack, 0, 0);
         }
     }
 
