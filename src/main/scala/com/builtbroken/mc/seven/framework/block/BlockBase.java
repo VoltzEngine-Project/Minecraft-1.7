@@ -9,10 +9,10 @@ import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.registry.ModManager;
-import com.builtbroken.mc.core.registry.implement.IRegistryInit;
 import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.IJsonGenMod;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
+import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.helper.WrenchUtility;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
@@ -52,7 +52,7 @@ import java.util.*;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 6/24/2016.
  */
-public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGenObject, ITileEntityProvider
+public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEntityProvider
 {
     /** Data about the block */
     public final BlockPropertyData data;
@@ -126,18 +126,15 @@ public class BlockBase extends BlockContainer implements IRegistryInit, IJsonGen
     }
 
     @Override
-    public void onRegistered()
+    public void onPhase(JsonLoadPhase phase)
     {
-        if (data.oreName != null)
+        if(phase == JsonLoadPhase.LOAD_PHASE_TWO)
         {
-            OreDictionary.registerOre(data.oreName, new ItemStack(this));
+            if (data.oreName != null)
+            {
+                OreDictionary.registerOre(data.oreName, new ItemStack(this));
+            }
         }
-    }
-
-    @Override
-    public void onClientRegistered()
-    {
-
     }
 
     @Override

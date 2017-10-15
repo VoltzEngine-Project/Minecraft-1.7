@@ -1,6 +1,7 @@
 package com.builtbroken.mc.seven.framework.block.meta;
 
 import com.builtbroken.mc.framework.json.imp.IJSONMetaConvert;
+import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.BlockPropertyData;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
@@ -42,7 +43,15 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     }
 
     @Override
-    public void onRegistered()
+    public void onPhase(JsonLoadPhase phase)
+    {
+        if (phase == JsonLoadPhase.LOAD_PHASE_TWO)
+        {
+            registerOreNames();
+        }
+    }
+
+    public void registerOreNames()
     {
         //Register main ore name
         if (data.oreName != null)
