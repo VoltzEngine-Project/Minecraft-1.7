@@ -69,10 +69,12 @@ public class MetaData
     /**
      * Adds an ore name to be registered
      *
-     * @param name
+     * @param input
      */
-    public void addOreName(String name)
+    @JsonProcessorData(value = {"ore", "oreName"})
+    public void addOreName(String input)
     {
+        String name = input.trim();
         //TODO throw error if added after game has loaded
         if (oreNames == null)
         {
