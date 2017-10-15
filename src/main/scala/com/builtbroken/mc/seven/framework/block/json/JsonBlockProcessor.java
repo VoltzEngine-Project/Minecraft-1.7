@@ -166,26 +166,40 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
         {
             JsonObject json = array.get(i).getAsJsonObject();
             ensureValuesExist(json, "id");
-            MetaData meta = new MetaData(json.get("id").getAsString());
+            MetaData metadata = new MetaData(json.get("id").getAsString());
 
-            //Reads the meta entry and then returns the meta to assign
-            int m = readMetaEntry(block, meta, json, objectList);
+            //Handle JSON data via injection map or processors
+            List<String> keysUsed = new ArrayList(); //temp fix for unknown key
+            keysUsed.add("id");
+            for (Map.Entry<String, JsonElement> entry : json.entrySet())
+            {
+                if (!blockMetaDataHandler.handle(metadata, entry.getKey(), entry.getValue()) && !keysUsed.contains(entry.getKey()))
+                {
+                    processUnknownEntry(entry.getKey(), entry.getValue(), block, metadata, objectList);
+                }
+                else
+                {
+                    keysUsed.add(entry.getKey());
+                }
+            }
+
+            int index = metadata.index;
 
             //Meta of -1 is invalid
-            if (m != -1)
+            if (index != -1)
             {
                 //Meta is locked to 0-15
-                if (m >= 0 && m < 16)
+                if (index >= 0 && index < 16)
                 {
                     //Prevent overriding by mistake
-                    if (block.metaDataValues[m] == null)
+                    if (block.metaDataValues[index] == null)
                     {
-                        meta.index = m;
-                        block.metaDataValues[m] = meta;
+                        metadata.index = index;
+                        block.metaDataValues[index] = metadata;
                     }
                     else
                     {
-                        throw new IllegalArgumentException("JsonBlockProcessor: Meta value[" + m + "] was overridden inside the same file for block " + block.data.name);
+                        throw new IllegalArgumentException("JsonBlockProcessor: Meta value[" + index + "] was overridden inside the same file for block " + block.getContentID());
                     }
                 }
                 else
@@ -198,26 +212,6 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
                 throw new IllegalArgumentException("JsonBlockProcessor: Each meta entry requires the value 'meta' of type Integer");
             }
         }
-    }
-
-    /**
-     * Reads data from json into
-     *
-     * @param block
-     * @param data
-     * @param json
-     * @return
-     */
-    public int readMetaEntry(BlockBase block, MetaData data, JsonObject json, List<IJsonGenObject> objectList)
-    {
-        for (Map.Entry<String, JsonElement> entry : json.entrySet())
-        {
-            if (!blockMetaDataHandler.handle(data, entry.getKey(), entry.getValue()))
-            {
-                processUnknownEntry(entry.getKey(), entry.getValue(), block, data, objectList);
-            }
-        }
-        return data.index;
     }
 
     /**
@@ -246,13 +240,13 @@ public class JsonBlockProcessor extends JsonProcessor<BlockBase>
             else
             {
                 //Ignore unknown entries for backwards compatibility TODO add config option to enforce all data is read
-                Engine.logger().error("JsonBlockProcessor: Error processing data for block " + block.data.name + ", processor rejected entry[" + name + "]=" + element);
+                Engine.logger().error("JsonBlockProcessor: Error processing extra data for block " + block.data.getContentID() + ", processor rejected entry[" + name + "]=" + element);
             }
         }
         else
         {
             //Ignore unknown entries for backwards compatibility TODO add config option to enforce all data is read
-            Engine.logger().error("JsonBlockProcessor: Error processing data for block " + block.data.name + ", no processor found for entry[" + name + "]=" + element);
+            Engine.logger().error("JsonBlockProcessor: Error processing extra data for block " + block.data.getContentID() + ", no processor found for entry[" + name + "=" + element + "]");
         }
     }
 
