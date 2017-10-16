@@ -3,6 +3,7 @@ package com.builtbroken.mc.seven.framework.block;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.override.JsonOverride;
 import com.builtbroken.mc.framework.json.processors.JsonGenData;
 import com.builtbroken.mc.framework.json.settings.JsonSettingData;
 import com.builtbroken.mc.imp.transform.region.Cube;
@@ -45,6 +46,7 @@ public class BlockPropertyData extends JsonGenData
     private Material material = Material.clay;
     private String materialName = "clay";
     private String itemToDrop = null;
+    private String harvestTool = null;
     private boolean isOpaqueCube;
     private boolean renderAsNormalBlock = true;
     private boolean supportsRedstone = false;
@@ -59,6 +61,7 @@ public class BlockPropertyData extends JsonGenData
     private int color = -1;
     private int lightValue;
     private int itemDropCount = 1;
+    private int harvestLevel = -1;
 
     private Cube renderBounds = Cube.FULL;
     private Cube blockBounds = Cube.FULL;
@@ -104,6 +107,7 @@ public class BlockPropertyData extends JsonGenData
         return hardness;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "hardness", type = "float")
     public void setHardness(float hardness)
     {
@@ -115,6 +119,7 @@ public class BlockPropertyData extends JsonGenData
         return resistance;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "resistance", type = "float")
     public void setResistance(float resistance)
     {
@@ -197,6 +202,7 @@ public class BlockPropertyData extends JsonGenData
         return lightValue;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "lightOutput", type = "int")
     public void setLightValue(int lightValue)
     {
@@ -278,6 +284,7 @@ public class BlockPropertyData extends JsonGenData
         return itemDropCount;
     }
 
+    @JsonOverride
     @JsonProcessorData(value = "itemDropCount", type = "int")
     public void setItemDropCount(int count)
     {
@@ -315,6 +322,30 @@ public class BlockPropertyData extends JsonGenData
     public void setNormalCube(boolean normalCube)
     {
         isNormalCube = normalCube;
+    }
+
+    public int getHarvestLevel()
+    {
+        return harvestLevel;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "harvestToolLevel", type = "int")
+    public void setHarvestLevel(int harvestLevel)
+    {
+        this.harvestLevel = harvestLevel;
+    }
+
+    public String getHarvestTool()
+    {
+        return harvestTool;
+    }
+
+    @JsonOverride
+    @JsonProcessorData(value = "harvestTool")
+    public void setHarvestTool(String harvestTool)
+    {
+        this.harvestTool = harvestTool;
     }
 
     //=============================================

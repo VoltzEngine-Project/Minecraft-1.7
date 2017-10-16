@@ -2,6 +2,7 @@ package com.builtbroken.mc.seven.framework.block.meta;
 
 import com.builtbroken.mc.framework.json.data.JsonItemEntry;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.json.override.JsonOverride;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
 import net.minecraft.item.ItemStack;
 
@@ -14,7 +15,7 @@ import java.util.List;
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 6/26/2016.
  */
-public class MetaData
+public class MetaData //TODO merge with BlockProperty to cut down on duplication of data, then split off custom sub versions for unique data
 {
     /** Suffix to append to the block's localization */
     @JsonProcessorData(value = {"name", "localization"})
@@ -31,15 +32,26 @@ public class MetaData
     @JsonProcessorData(value = "dropMeta", type = "int")
     public int dropIndex = -1;
 
+    @JsonOverride
     @JsonProcessorData(value = "randomDropBonus", type = "int")
     public int randomDropBonus = -1;
 
+    @JsonOverride
     @JsonProcessorData("useFortuneDropBonus")
     public boolean dropFortuneBonus;
 
+    @JsonOverride
     @JsonProcessorData(value = "itemToDrop", type = "item")
     public JsonItemEntry itemToDrop;
     public ItemStack _itemToDropCache;
+
+    @JsonOverride
+    @JsonProcessorData(value = "harvestTool")
+    public String harvestTool = null;
+
+    @JsonOverride
+    @JsonProcessorData(value = "harvestToolLevel", type = "int")
+    public int harvestLevel = -1;
 
     /** Object that creates tiles */
     public ITileProvider tileEntityProvider;

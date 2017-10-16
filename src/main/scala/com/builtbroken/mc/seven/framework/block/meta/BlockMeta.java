@@ -182,6 +182,29 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     }
 
     @Override
+    protected int getBlockHarvestLevel(int metadata)
+    {
+        int level = super.getBlockHarvestLevel(metadata);
+        MetaData data = metaDataValues[metadata];
+        if (data != null && data.harvestLevel > level)
+        {
+            level = data.harvestLevel;
+        }
+        return level;
+    }
+
+    @Override
+    protected String getBlockHarvestTool(int metadata)
+    {
+        MetaData data = metaDataValues[metadata];
+        if (data != null && data.harvestTool != null)
+        {
+            return data.harvestTool;
+        }
+        return super.getBlockHarvestTool(metadata);
+    }
+
+    @Override
     public String toString()
     {
         return "BlockMeta[" + data.name + "]";

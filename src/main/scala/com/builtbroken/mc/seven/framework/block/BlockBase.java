@@ -128,7 +128,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onPhase(JsonLoadPhase phase)
     {
-        if(phase == JsonLoadPhase.LOAD_PHASE_TWO)
+        if (phase == JsonLoadPhase.LOAD_PHASE_TWO)
         {
             if (data.oreName != null)
             {
@@ -321,6 +321,11 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 }
             }
         }
+        String tool = getBlockHarvestTool(metadata);
+        if (tool != null && !tool.isEmpty())
+        {
+            return tool;
+        }
         return super.getHarvestTool(metadata);
     }
 
@@ -347,9 +352,17 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     public int getHarvestLevel(int metadata)
     {
         List<ITileEventListener> toolListeners = listeners.get("tool");
+        //Get default harvest level
+        int level = super.getHarvestLevel(metadata);
+
+        //Get assigned harvest level
+        if (level < getBlockHarvestLevel(metadata))
+        {
+            level = getBlockHarvestLevel(metadata);
+        }
+
         if (toolListeners != null)
         {
-            int level = super.getHarvestLevel(metadata);
             for (ITileEventListener next : toolListeners)
             {
                 if (next instanceof IToolListener)
@@ -361,9 +374,18 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                     }
                 }
             }
-            return level;
         }
-        return super.getHarvestLevel(metadata);
+        return level;
+    }
+
+    protected int getBlockHarvestLevel(int metadata)
+    {
+        return data.getHarvestLevel();
+    }
+
+    protected String getBlockHarvestTool(int metadata)
+    {
+        return data.getHarvestTool();
     }
 
     @Override
