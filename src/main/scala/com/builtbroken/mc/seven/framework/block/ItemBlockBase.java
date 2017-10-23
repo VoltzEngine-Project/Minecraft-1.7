@@ -181,7 +181,7 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         RenderData data = ClientDataHandler.INSTANCE.getRenderData(getRenderContentID(metadata));
         if (data != null)
         {
-            return data.itemRenderLayers;
+            return data.getItemRenderLayers(metadata);
         }
 
         return 1;
