@@ -64,12 +64,11 @@ import com.builtbroken.mc.lib.data.mass.MassRegistry;
 import com.builtbroken.mc.lib.helper.LanguageUtility;
 import com.builtbroken.mc.lib.helper.PotionUtility;
 import com.builtbroken.mc.lib.helper.ReflectionUtility;
-import com.builtbroken.mc.lib.helper.recipe.OreNames;
 import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.edit.PlacementDataExtended;
-import com.builtbroken.mc.lib.world.map.tile.TileMapRegistry;
 import com.builtbroken.mc.lib.world.map.radar.RadarRegistry;
 import com.builtbroken.mc.lib.world.map.radio.RadioRegistry;
+import com.builtbroken.mc.lib.world.map.tile.TileMapRegistry;
 import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
 import com.builtbroken.mc.seven.framework.block.json.JsonBlockListenerProcessor;
 import com.builtbroken.mc.seven.framework.block.json.JsonBlockProcessor;
@@ -336,16 +335,10 @@ public class ModLoader extends EngineLoader
 
         //Register effects
         EntityEffectHandler.addEffectCreator(EntityEffectHandler.BLEEDING_EFFECT, e -> new BleedingEffect(e));
-
         //Call loader
         loader.preInit();
         //Claim json content
         JsonContentLoader.INSTANCE.claimContent(this);
-
-        //Ore dictionary registry
-        OreDictionary.registerOre(OreNames.WOOD_STICK, Items.stick);
-        OreDictionary.registerOre(OreNames.STRING, Items.string);
-        OreDictionary.registerOre(OreNames.FLINT, Items.flint);
     }
 
     @SubscribeEvent
