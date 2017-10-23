@@ -2,16 +2,12 @@ package com.builtbroken.mc.seven.framework.json.recipe;
 
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
 import com.builtbroken.mc.framework.json.processors.JsonProcessor;
-import com.builtbroken.mc.framework.json.struct.JsonForLoop;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.IJsonBlockSubProcessor;
 import com.builtbroken.mc.seven.framework.block.meta.MetaData;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.minecraft.item.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,54 +18,6 @@ import java.util.List;
  */
 public abstract class JsonRecipeProcessor<D extends IJsonGenObject> extends JsonProcessor<D> implements IJsonBlockSubProcessor
 {
-    @Override
-    public boolean process(JsonElement element, List<IJsonGenObject> objects)
-    {
-        handle(null, element, objects);
-        return true;
-    }
-
-    protected void handle(final Object out, JsonElement element, List<IJsonGenObject> objects)
-    {
-        JsonObject jsonObject = element.getAsJsonObject();
-        if (jsonObject.has("for"))
-        {
-            List<JsonObject> elements = new ArrayList();
-            JsonForLoop.generateDataForLoop(jsonObject.getAsJsonObject("for"), elements, new HashMap(), 0);
-
-            for(JsonObject object : elements)
-            {
-                D data = process(out, object);
-                if (data != null)
-                {
-                    objects.add(data);
-                }
-            }
-        }
-        else if (jsonObject.has("forEach"))
-        {
-            List<JsonObject> elements = new ArrayList();
-            JsonForLoop.generateDataForEachLoop(jsonObject.getAsJsonObject("forEach"), elements, new HashMap(), 0);
-
-            for(JsonObject object : elements)
-            {
-                D data = process(out, object);
-                if (data != null)
-                {
-                    objects.add(data);
-                }
-            }
-        }
-        else
-        {
-            D data = process(out, element);
-            if (data != null)
-            {
-                objects.add(data);
-            }
-        }
-    }
-
     /**
      * Called to process a recipe
      *
