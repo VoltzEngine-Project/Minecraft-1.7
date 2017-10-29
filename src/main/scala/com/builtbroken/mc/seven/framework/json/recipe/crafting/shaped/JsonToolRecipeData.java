@@ -40,22 +40,27 @@ public class JsonToolRecipeData extends JsonShapedRecipeData
     @Override
     public IRecipe getRecipe()
     {
-        //Create recipe
-        if (output instanceof Block)
+        if (!broken)
         {
-            return new RecipeTool((Block) output, data);
-        }
-        else if (output instanceof Item)
-        {
-            return new RecipeTool((Item) output, data);
-        }
-        else if (output instanceof ItemStack)
-        {
-            return new RecipeTool((ItemStack) output, data);
-        }
-        else
-        {
-            Engine.logger().error("The type of output value [" + output + "] could not be recognized for recipe creation. Recipe -> " + this);
+            //Create recipe
+            if (output instanceof Block)
+            {
+                return new RecipeTool((Block) output, data);
+            }
+            else if (output instanceof Item)
+            {
+                return new RecipeTool((Item) output, data);
+            }
+            else if (output instanceof ItemStack)
+            {
+                return new RecipeTool((ItemStack) output, data);
+            }
+            else
+            {
+                String msg = "The type of output value [" + output + "] could not be recognized for recipe creation";
+                Engine.logger().error(msg + ". Recipe -> " + this);
+                addError("RecipeCreation", msg, null);
+            }
         }
         return null;
     }
@@ -63,24 +68,44 @@ public class JsonToolRecipeData extends JsonShapedRecipeData
     @Override
     protected Object convert(Object in)
     {
-        if (in instanceof String)
+        try
         {
-            String value = (String) in;
-            if (value.startsWith("tool@"))
+            if (in instanceof String)
             {
-                value = value.substring(5, value.length());
-                value = value.toLowerCase().trim();
-                if (toolFactories.containsKey(value))
+                String value = (String) in;
+                if (value.startsWith("tool@"))
                 {
-                    ItemStack stack = toolFactories.get(value).apply(value);
-                    if (stack != null && stack.getItem() != null)
+                    value = value.substring(5, value.length());
+                    value = value.toLowerCase().trim();
+                    if (toolFactories.containsKey(value))
                     {
-                        return stack;
+                        ItemStack stack = toolFactories.get(value).apply(value);
+                        if (stack != null && stack.getItem() != null)
+                        {
+                            return stack;
+                        }
+                        else
+                        {
+                            addError("ConversionError", "Failed to convert tool entry [" + in + "] to tool" +
+                                    " due to [" + toolFactories.get(value) + "] returning an invalid stack [" + stack + "]", null);
+                        }
+                    }
+                    else
+                    {
+                        addError("ConversionError", "Failed to convert tool entry [" + in + "] to tool" +
+                                " due to no factory for type", null);
                     }
                 }
             }
+            return convertItemEntry(in);
         }
-        return convertItemEntry(in);
+        catch (Exception e)
+        {
+            String msg = "Unexpected error while converting [" + in + "] to usable recipe entry.";
+            Engine.logger().error("JsonToolRecipeData: " + msg, e);
+            addError("ConversionError", msg, null);
+        }
+        return null;
     }
 
     @Override

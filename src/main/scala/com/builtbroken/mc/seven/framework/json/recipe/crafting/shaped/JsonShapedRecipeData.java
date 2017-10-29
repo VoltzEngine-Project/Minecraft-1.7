@@ -21,7 +21,6 @@ public class JsonShapedRecipeData extends JsonCraftingRecipeData
     public final Object[] data;
     public final boolean largeGrid;
 
-    private boolean broken = false;
 
     public JsonShapedRecipeData(IJsonProcessor processor, Object output, Object[] data, boolean largeGrid)
     {
