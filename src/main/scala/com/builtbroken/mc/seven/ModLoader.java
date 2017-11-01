@@ -14,6 +14,7 @@ import com.builtbroken.mc.core.commands.CommandVE;
 import com.builtbroken.mc.core.content.blast.tnt.ExplosiveHandlerTNT;
 import com.builtbroken.mc.core.content.blocks.BlockHeatedStone;
 import com.builtbroken.mc.core.content.debug.ItemDevData;
+import com.builtbroken.mc.core.content.entity.ItemExEntitySpawnEgg;
 import com.builtbroken.mc.core.content.parts.CraftingParts;
 import com.builtbroken.mc.core.content.parts.ItemCircuits;
 import com.builtbroken.mc.core.content.parts.ItemCraftingParts;
@@ -341,6 +342,8 @@ public class ModLoader extends EngineLoader
         loader.preInit();
         //Claim json content
         JsonContentLoader.INSTANCE.claimContent(this);
+
+        getManager().newItem("exSpawnEgg", new ItemExEntitySpawnEgg());
     }
 
     @SubscribeEvent

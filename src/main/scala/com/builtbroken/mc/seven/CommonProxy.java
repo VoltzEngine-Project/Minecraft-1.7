@@ -1,7 +1,8 @@
 package com.builtbroken.mc.seven;
 
 import com.builtbroken.mc.core.Engine;
-import com.builtbroken.mc.core.content.entity.EntityExCreeper;
+import com.builtbroken.mc.core.content.entity.bat.ex.EntityExBat;
+import com.builtbroken.mc.core.content.entity.creeper.EntityExCreeper;
 import com.builtbroken.mc.core.registry.CommonRegistryProxy;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.debug.gui.FrameDebug;
@@ -51,5 +52,7 @@ public class CommonProxy extends AbstractProxy
 
         //TODO move to JSON
         EntityRegistry.registerModEntity(EntityExCreeper.class, "ExCreeper", 55, Engine.loaderInstance, 100, 1, true);
+        EntityRegistry.registerModEntity(EntityExBat.class, "ExBat", 56, Engine.loaderInstance, 100, 1, true);
+
     }
 }

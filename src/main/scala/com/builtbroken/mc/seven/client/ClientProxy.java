@@ -21,8 +21,10 @@ import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.core.commands.CommandVE;
 import com.builtbroken.mc.core.commands.json.visuals.CommandJsonRender;
 import com.builtbroken.mc.core.content.blast.emp.ExEmp;
-import com.builtbroken.mc.core.content.entity.EntityExCreeper;
-import com.builtbroken.mc.core.content.entity.RenderExCreeper;
+import com.builtbroken.mc.core.content.entity.bat.ex.EntityExBat;
+import com.builtbroken.mc.core.content.entity.bat.ex.RenderExBat;
+import com.builtbroken.mc.core.content.entity.creeper.EntityExCreeper;
+import com.builtbroken.mc.core.content.entity.creeper.RenderExCreeper;
 import com.builtbroken.mc.core.handler.PlayerKeyHandler;
 import com.builtbroken.mc.core.handler.RenderSelection;
 import com.builtbroken.mc.core.network.packet.callback.chunk.PacketRequestData;
@@ -151,6 +153,7 @@ public class ClientProxy extends CommonProxy
 
         //Register graphics
         RenderingRegistry.registerEntityRenderingHandler(EntityExCreeper.class, new RenderExCreeper());
+        RenderingRegistry.registerEntityRenderingHandler(EntityExBat.class, new RenderExBat());
 
         //Register graphics handlers
         if (Engine.multiBlock != null)
