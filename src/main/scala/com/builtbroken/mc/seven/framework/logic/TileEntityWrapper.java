@@ -277,6 +277,18 @@ public class TileEntityWrapper extends TileEntity implements ITileNodeHost, ITil
     }
 
     @Override
+    public boolean isRedstonePowered()
+    {
+        return worldObj.isBlockIndirectlyGettingPowered(xi(), yi(), zi());
+    }
+
+    @Override
+    public int getRedstoneLevel()
+    {
+        return worldObj.getStrongestIndirectPower(xi(), yi(), zi());
+    }
+
+    @Override
     public List<ITileEventListener> getListeners(String key)
     {
         if (listeners.containsKey(key))
