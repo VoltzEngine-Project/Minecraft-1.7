@@ -49,7 +49,7 @@ import com.builtbroken.mc.seven.client.listeners.blocks.JsonIconListener;
 import com.builtbroken.mc.seven.client.listeners.blocks.RotatableIconListener;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.json.JsonBlockListenerProcessor;
-import com.builtbroken.mc.seven.framework.block.listeners.RotatableListener;
+import com.builtbroken.mc.seven.framework.block.listeners.RotatableMCListener;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -191,7 +191,7 @@ public class ClientProxy extends CommonProxy
                     {
                         for (ITileEventListener listener : listeners)
                         {
-                            if (listener instanceof RotatableListener)
+                            if (listener instanceof RotatableMCListener)
                             {
                                 ((BlockBase) object).addListener(new RotatableIconListener((BlockBase) object));
                                 break;

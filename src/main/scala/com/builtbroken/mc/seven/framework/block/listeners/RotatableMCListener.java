@@ -14,20 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Sets the rotation of the block on placement using a 1-4 meta with modifier
+ * Sets the rotation of the block on placement using the same meta format as Minecraft
  *
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
  * Created by Dark(DarkGuardsman, Robert) on 4/5/2017.
  */
-public class RotatableListener extends TileListener implements IPlacementListener, IBlockListener
+public class RotatableMCListener extends TileListener implements IPlacementListener, IBlockListener
 {
     @Override
     public void onPlacedBy(EntityLivingBase entityLivingBase, ItemStack stack)
     {
-        int rotation = BlockUtility.getRotation(entityLivingBase.rotationYaw);
+        int rotation = BlockUtility.determineRotation(entityLivingBase.rotationYaw);
         if (!setMeta(rotation, 3))
         {
-            Engine.logger().error("RotatableListener: Failed to set rotation for block at " + x() + "x," + y() + "y," + z() + "z,");
+            Engine.logger().error("Failed to set rotation for block at " + x() + "x," + y() + "y," + z() + "z,");
         }
     }
 
@@ -44,13 +44,13 @@ public class RotatableListener extends TileListener implements IPlacementListene
         @Override
         public ITileEventListener createListener(Block block)
         {
-            return new RotatableListener();
+            return new RotatableMCListener();
         }
 
         @Override
         public String getListenerKey()
         {
-            return "rotation2";
+            return "rotation";
         }
     }
 }

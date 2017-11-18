@@ -387,6 +387,7 @@ public class ModLoader extends EngineLoader
 
 
         //==============================================================
+        JsonBlockListenerProcessor.addBuilder(new RotatableMCListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new RotatableListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new MultiBlockListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new WrenchRotationListener.Builder());
