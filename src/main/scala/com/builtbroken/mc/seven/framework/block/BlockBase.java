@@ -1025,6 +1025,11 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
         return ClientDataHandler.INSTANCE.getRenderData(getContentID(meta));
     }
 
+    /**
+     *
+     * @param meta - index of the item, -1 should be the master content ID
+     * @return
+     */
     public String getContentID(int meta)
     {
         if (data == null)

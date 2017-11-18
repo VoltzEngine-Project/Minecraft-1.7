@@ -4,6 +4,7 @@ import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
 import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
+import com.builtbroken.mc.client.json.render.item.RenderStateItem;
 import com.builtbroken.mc.prefab.items.ItemBlockAbstract;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -27,6 +28,8 @@ import java.util.List;
  */
 public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderStateProvider
 {
+    int spriteID = -1;
+
     public ItemBlockBase(Block block)
     {
         super(block);
@@ -187,10 +190,34 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         return 1;
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
     public int getSpriteNumber()
     {
-        return super.getSpriteNumber();
+        //Check if we should render as an item
+        if (spriteID == -1)
+        {
+            RenderData data = ClientDataHandler.INSTANCE.getRenderData(getRenderContentID(-1));
+            if (data != null)
+            {
+                List<String> keys = new ArrayList();
+                keys.add(RenderData.INVENTORY_RENDER_KEY);
+                keys.add("item");
+
+                //Loop through keys until we find a valid match
+                for (String key : keys)
+                {
+                    IRenderState state = data.getState(key);
+                    if (state instanceof RenderStateItem)
+                    {
+                        spriteID = 1;
+                        return spriteID;
+                    }
+                }
+            }
+            spriteID = 0;
+        }
+        return spriteID;
     }
 
     @Override
@@ -323,14 +350,10 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
                 IRenderState state = data.getState(key);
                 if (state != null)
                 {
-                    state = data.getState(RenderData.INVENTORY_RENDER_KEY);
-                    if (state != null)
+                    IIcon icon = state.getIcon(pass);
+                    if (icon != null)
                     {
-                        IIcon icon = state.getIcon(pass);
-                        if (icon != null)
-                        {
-                            return icon;
-                        }
+                        return icon;
                     }
                 }
             }
@@ -345,6 +368,7 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         keys.add(RenderData.INVENTORY_RENDER_KEY + "." + meta);
         keys.add(RenderData.INVENTORY_RENDER_KEY + "." + pass);
         keys.add(RenderData.INVENTORY_RENDER_KEY);
+        keys.add("item");
 
         return keys;
     }
