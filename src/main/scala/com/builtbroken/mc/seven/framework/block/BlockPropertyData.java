@@ -55,6 +55,7 @@ public class BlockPropertyData extends JsonGenData
     private boolean isSolid = false;
     private boolean isNormalCube = false;
     private boolean canSilkHarvest = false;
+    private boolean useAllRenderPasses = false;
     private float hardness = 5;
     private float resistance = 5;
     private int renderType = 0;
@@ -346,6 +347,17 @@ public class BlockPropertyData extends JsonGenData
     public void setHarvestTool(String harvestTool)
     {
         this.harvestTool = harvestTool;
+    }
+
+    public boolean useAllRenderPasses()
+    {
+        return useAllRenderPasses;
+    }
+
+    @JsonProcessorData(value = "useAllRenderPasses")
+    public void setUseAllRenderPasses(boolean useAllRenderPasses)
+    {
+        this.useAllRenderPasses = useAllRenderPasses;
     }
 
     //=============================================

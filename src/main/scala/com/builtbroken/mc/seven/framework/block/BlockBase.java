@@ -1221,6 +1221,12 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     }
 
     @Override
+    public boolean canRenderInPass(int pass)
+    {
+        return data != null && data.useAllRenderPasses() || pass == getRenderBlockPass();
+    }
+
+    @Override
     public int tickRate(World world)
     {
         int tickRate = super.tickRate(world);
