@@ -2,9 +2,10 @@ package com.builtbroken.mc.seven.framework.block.listeners;
 
 import com.builtbroken.mc.api.IModObject;
 import com.builtbroken.mc.api.abstraction.world.IWorld;
+import com.builtbroken.mc.api.tile.node.ITileNode;
+import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
-import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
@@ -102,6 +103,16 @@ public class TileListener implements ITileEventListener
         else if (blockAccess != null)
         {
             return blockAccess.getTileEntity(x, y, z);
+        }
+        return null;
+    }
+
+    protected ITileNode getNode()
+    {
+        TileEntity tile = getTileEntity();
+        if (tile instanceof ITileNodeHost)
+        {
+            return ((ITileNodeHost) tile).getTileNode();
         }
         return null;
     }

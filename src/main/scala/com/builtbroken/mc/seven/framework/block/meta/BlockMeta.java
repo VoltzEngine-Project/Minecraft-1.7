@@ -37,6 +37,15 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     }
 
     @Override
+    public String getUnlocalizedName()
+    {
+        //Fix for some mods using unlocalized name for IDs
+        return super.getUnlocalizedName()
+                .replace(META_INDEX_LOCALIZATION_KEY, "")
+                .replace(META_NAME_LOCALIZATION_KEY, "");
+    }
+
+    @Override
     protected Class<? extends ItemBlock> getItemBlockClass()
     {
         return ItemBlockMeta.class;

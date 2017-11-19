@@ -62,6 +62,8 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     /** Has the block been registered */
     protected boolean registered = false;
 
+    public String unlocalizedBlockName;
+
     //Listeners
     public final HashMap<String, List<ITileEventListener>> listeners = new HashMap();
 
@@ -70,7 +72,8 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
         super(data.getMaterial());
         this.data = data;
         this.data.block = this;
-        this.setBlockName(data.localization.replace("${name}", data.name).replace("${mod}", data.getMod()));
+        unlocalizedBlockName = data.localization.replace("${name}", data.name).replace("${mod}", data.getMod());
+        this.setBlockName(unlocalizedBlockName);
         this.setResistance(data.getResistance());
         this.setHardness(data.getHardness());
 
