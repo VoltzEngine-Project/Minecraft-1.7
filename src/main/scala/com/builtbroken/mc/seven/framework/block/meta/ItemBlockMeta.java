@@ -36,13 +36,14 @@ public class ItemBlockMeta extends ItemBlockBase implements IJSONMetaConvert
         int damage = itemstack.getItemDamage();
         if (damage >= 0 && damage < 16)
         {
+            //Get cache
             if (localizationCache[damage] != null)
             {
                 return localizationCache[damage];
             }
 
             //Assemble lang key, only called once per run
-            String lang = getBlockBase().unlocalizedBlockName;
+            String lang = "tile." + getBlockBase().unlocalizedBlockName;
             lang = lang.replace(BlockMeta.META_INDEX_LOCALIZATION_KEY, "" + damage);
             if (getBlockJson().metaDataValues[damage] != null && getBlockJson().metaDataValues[damage].localization != null)
             {
