@@ -898,8 +898,8 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
             ITileEventListener next = it.next();
             if (next instanceof ILightLevelListener)
             {
-                int level = ((ILightLevelListener) next).getLightLevel();
-                if (level >= 0 && level <= 15 && level > lightValue)
+                int level = Math.min(15, ((ILightLevelListener) next).getLightLevel());
+                if (level >= 0 && level > lightValue)
                 {
                     lightValue = level;
                 }
