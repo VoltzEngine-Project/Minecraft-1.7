@@ -124,7 +124,8 @@ public class WorldWrapper implements IWorld
     {
         if (isServer())
         {
-            PacketSpawnParticle packet = new PacketSpawnParticle("JSON_" + effectInstance.key,
+            String effectName = !effectInstance.key.startsWith("VEP_") ? "JSON_" + effectInstance.key : effectInstance.key;
+            PacketSpawnParticle packet = new PacketSpawnParticle(effectName,
                     dim,
                     effectInstance.x, effectInstance.y, effectInstance.z,
                     effectInstance.mx, effectInstance.my, effectInstance.mz);
