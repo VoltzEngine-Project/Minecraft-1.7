@@ -197,24 +197,37 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         //Check if we should render as an item
         if (spriteID == -1)
         {
-            RenderData data = ClientDataHandler.INSTANCE.getRenderData(getRenderContentID(-1));
-            if (data != null)
+            //Loop through all content IDs
+            for (String id : getRenderContentIDs())
             {
-                List<String> keys = new ArrayList();
-                keys.add(RenderData.INVENTORY_RENDER_KEY);
-                keys.add("item");
-
-                //Loop through keys until we find a valid match
-                for (String key : keys)
+                RenderData data = ClientDataHandler.INSTANCE.getRenderData(id);
+                if (data != null)
                 {
-                    IRenderState state = data.getState(key);
-                    if (state instanceof RenderStateItem)
+                    if (data.getSpriteIndexForItems() != -1)
                     {
-                        spriteID = 1;
+                        spriteID = data.getSpriteIndexForItems();
                         return spriteID;
+                    }
+
+                    //Guesses at what ID to use based on item renders
+                    List<String> keys = new ArrayList();
+                    keys.add(RenderData.INVENTORY_RENDER_KEY);
+                    keys.add("item");
+
+                    //Loop through keys until we find a valid match
+                    for (String key : keys)
+                    {
+                        IRenderState state = data.getState(key);
+                        if (state instanceof RenderStateItem)
+                        {
+                            spriteID = 1;
+                            return spriteID;
+                        }
                     }
                 }
             }
+
+            //Backup case, if not found default to zero
             spriteID = 0;
         }
         return spriteID;
