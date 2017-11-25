@@ -168,6 +168,7 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
     public void registerIcons(IIconRegister reg)
     {
         super.registerIcons(reg);
+        spriteID = -1;
     }
 
     @Override
@@ -198,7 +199,8 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         if (spriteID == -1)
         {
             //Loop through all content IDs
-            for (String id : getRenderContentIDs())
+            List<String> contentIDs = getRenderContentIDs();
+            for (String id : contentIDs)
             {
                 RenderData data = ClientDataHandler.INSTANCE.getRenderData(id);
                 if (data != null)
@@ -283,8 +285,7 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
                 keys.add(RenderData.INVENTORY_RENDER_KEY + "." + recommendedKey);
                 keys.add(recommendedKey);
             }
-            keys.add(RenderData.INVENTORY_RENDER_KEY + "." + pass);
-            keys.add(RenderData.INVENTORY_RENDER_KEY);
+            keys.addAll(getIconStateKeys(data, stack.getItemDamage(), pass));
 
             //Loop through keys until we find a valid match
             for (String key : keys)
@@ -292,13 +293,10 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
                 IRenderState state = data.getState(key);
                 if (state != null)
                 {
-                    if (state != null)
+                    IIcon icon = state.getIcon(pass);
+                    if (icon != null)
                     {
-                        IIcon icon = state.getIcon(pass);
-                        if (icon != null)
-                        {
-                            return icon;
-                        }
+                        return icon;
                     }
                 }
             }
