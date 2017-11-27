@@ -11,6 +11,7 @@ import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
+import com.builtbroken.mc.framework.multiblock.BlockMultiblock;
 import com.builtbroken.mc.framework.multiblock.MultiBlockHelper;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayout;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayoutHandler;
@@ -154,7 +155,12 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
         {
             return ((IActivationListener) tileEntity).onPlayerActivated(player, side, xHit, yHit, zHit);
         }
-        return getBlock().onBlockActivated(world().unwrap(), xi(), yi(), zi(), player, side, xHit, yHit, zHit);
+        Block block = getBlock();
+        if(!(block instanceof BlockMultiblock))
+        {
+            return block.onBlockActivated(world().unwrap(), xi(), yi(), zi(), player, side, xHit, yHit, zHit);
+        }
+        return false;
     }
 
     @Override
