@@ -26,6 +26,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,6 +34,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
@@ -42,6 +44,7 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.*;
@@ -161,6 +164,77 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     {
         //TODO add creation listener to inject listeners for tiles
         return createNewTileEntity(world, meta);
+    }
+
+    @Override
+    public boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
+    {
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+        while (it.hasNext())
+        {
+            ITileEventListener next = it.next();
+            if (next instanceof IDestroyedListener && ((IDestroyedListener) next).canSilkHarvest(player, metadata))
+            {
+                return true;
+            }
+        }
+        return super.canSilkHarvest(world, player, x, y, z, metadata);
+    }
+
+    @Override
+    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int meta)
+    {
+        //Remove block is called before this TODO fix so tiles can use this event
+
+        player.addStat(StatList.mineBlockStatArray[getIdFromBlock(this)], 1);
+        player.addExhaustion(0.025F);
+
+        if (this.canSilkHarvest(world, player, x, y, z, meta) && EnchantmentHelper.getSilkTouchModifier(player))
+        {
+            ArrayList<ItemStack> items = new ArrayList<ItemStack>();
+
+            boolean ignoreNormalDrop = false;
+
+            //Allow listeners to override default drops
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "blockStack");
+            while (it.hasNext())
+            {
+                ITileEventListener next = it.next();
+                if (next instanceof IBlockStackListener)
+                {
+                    if (((IBlockStackListener) next).collectSilkHarvestDrops(items, player, meta))
+                    {
+                        ignoreNormalDrop = true;
+                    }
+                }
+            }
+
+            //Get normal drop if there were no overrides
+            if (!ignoreNormalDrop || items.isEmpty())
+            {
+                ItemStack itemstack = this.createStackedBlock(meta);
+                if (itemstack != null)
+                {
+                    items.add(itemstack);
+                }
+            }
+
+            //Fire event to allow hooking drops
+            ForgeEventFactory.fireBlockHarvesting(items, world, this, x, y, z, meta, 0, 1.0f, true, player);
+
+            //Drop items
+            for (ItemStack is : items)
+            {
+                this.dropBlockAsItem(world, x, y, z, is);
+            }
+        }
+        else
+        {
+            harvesters.set(player);
+            int i1 = EnchantmentHelper.getFortuneModifier(player);
+            this.dropBlockAsItem(world, x, y, z, meta, i1);
+            harvesters.set(null);
+        }
     }
 
     @Override
@@ -1029,7 +1103,6 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     }
 
     /**
-     *
      * @param meta - index of the item, -1 should be the master content ID
      * @return
      */
@@ -1119,10 +1192,22 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public Item getItemDropped(int meta, Random random, int fortune)
     {
-        if (data != null && data.getItemToDrop() != null)
+        if (data != null && data.getItemToDropString() != null)
         {
-            return data.getItemToDrop();
+            //Override to remove default item drop
+            if ("nil".equalsIgnoreCase(data.getItemToDropString()))
+            {
+                return null;
+            }
+
+            //Get drop
+            Item item = data.getItemToDrop();
+            if (item != null)
+            {
+                return item;
+            }
         }
+        //Normal drop if nothing is set
         return Item.getItemFromBlock(this);
     }
 

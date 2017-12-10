@@ -297,6 +297,11 @@ public class BlockPropertyData extends JsonGenData
         return itemToDrop != null ? InventoryUtility.getItem(itemToDrop) : null; //TODO cache?
     }
 
+    public String getItemToDropString()
+    {
+        return itemToDrop;
+    }
+
     @JsonProcessorData(value = "itemToDrop")
     public void setItemToDrop(String item)
     {

@@ -394,6 +394,7 @@ public class ModLoader extends EngineLoader
         JsonBlockListenerProcessor.addBuilder(new RenderBoundsListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new AdjacentPlacementListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new PathPlacementListener.Builder());
+        JsonBlockListenerProcessor.addBuilder(new SilkHarvestListener.Builder());
         getProxy().loadJsonContentHandlers();
     }
 
