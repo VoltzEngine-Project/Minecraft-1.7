@@ -959,7 +959,13 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     public boolean isNormalCube(IBlockAccess world, int x, int y, int z)
     {
         //TODO implement listeners
-        return data.isNormalCube() || getMaterial().isOpaque() && renderAsNormalBlock() && !canProvidePower();
+        return isNormalCube();
+    }
+
+    @Override
+    public boolean isNormalCube()
+    {
+        return  data.isNormalCube() || getMaterial().isOpaque() && renderAsNormalBlock() && !canProvidePower();
     }
 
     @Override
