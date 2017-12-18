@@ -2,7 +2,6 @@ package com.builtbroken.mc.seven.framework.block.meta;
 
 import com.builtbroken.mc.framework.json.data.JsonItemEntry;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
-import com.builtbroken.mc.framework.json.override.JsonOverride;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
 import net.minecraft.item.ItemStack;
 
@@ -32,25 +31,20 @@ public class MetaData //TODO merge with BlockProperty to cut down on duplication
     @JsonProcessorData(value = "dropMeta", type = "int")
     public int dropIndex = -1;
 
-    @JsonOverride
-    @JsonProcessorData(value = "randomDropBonus", type = "int")
+    @JsonProcessorData(value = "randomDropBonus", type = "int", allowRuntimeChanges = true)
     public int randomDropBonus = -1;
 
-    @JsonOverride
-    @JsonProcessorData("useFortuneDropBonus")
+    @JsonProcessorData(value = "useFortuneDropBonus", allowRuntimeChanges = true)
     public boolean dropFortuneBonus;
 
-    @JsonOverride
-    @JsonProcessorData(value = "itemToDrop", type = "item")
+    @JsonProcessorData(value = "itemToDrop", type = "item", allowRuntimeChanges = true)
     public JsonItemEntry itemToDrop;
     public ItemStack _itemToDropCache;
 
-    @JsonOverride
-    @JsonProcessorData(value = "harvestTool")
+    @JsonProcessorData(value = "harvestTool", allowRuntimeChanges = true)
     public String harvestTool = null;
 
-    @JsonOverride
-    @JsonProcessorData(value = "harvestToolLevel", type = "int")
+    @JsonProcessorData(value = "harvestToolLevel", type = "int", allowRuntimeChanges = true)
     public int harvestLevel = -1;
 
     /** Object that creates tiles */

@@ -3,7 +3,6 @@ package com.builtbroken.mc.seven.framework.block;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
-import com.builtbroken.mc.framework.json.override.JsonOverride;
 import com.builtbroken.mc.framework.json.processors.JsonGenData;
 import com.builtbroken.mc.framework.json.settings.JsonSettingData;
 import com.builtbroken.mc.imp.transform.region.Cube;
@@ -108,8 +107,7 @@ public class BlockPropertyData extends JsonGenData
         return hardness;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "hardness", type = "float")
+    @JsonProcessorData(value = "hardness", type = "float", allowRuntimeChanges = true)
     public void setHardness(float hardness)
     {
         this.hardness = hardness;
@@ -120,8 +118,7 @@ public class BlockPropertyData extends JsonGenData
         return resistance;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "resistance", type = "float")
+    @JsonProcessorData(value = "resistance", type = "float", allowRuntimeChanges = true)
     public void setResistance(float resistance)
     {
         this.resistance = resistance;
@@ -203,8 +200,7 @@ public class BlockPropertyData extends JsonGenData
         return lightValue;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "lightOutput", type = "int")
+    @JsonProcessorData(value = "lightOutput", type = "int", allowRuntimeChanges = true)
     public void setLightValue(int lightValue)
     {
         this.lightValue = lightValue;
@@ -285,8 +281,7 @@ public class BlockPropertyData extends JsonGenData
         return itemDropCount;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "itemDropCount", type = "int")
+    @JsonProcessorData(value = "itemDropCount", type = "int", allowRuntimeChanges = true)
     public void setItemDropCount(int count)
     {
         this.itemDropCount = count;
@@ -335,8 +330,7 @@ public class BlockPropertyData extends JsonGenData
         return harvestLevel;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "harvestToolLevel", type = "int")
+    @JsonProcessorData(value = "harvestToolLevel", type = "int", allowRuntimeChanges = true)
     public void setHarvestLevel(int harvestLevel)
     {
         this.harvestLevel = harvestLevel;
@@ -347,8 +341,7 @@ public class BlockPropertyData extends JsonGenData
         return harvestTool;
     }
 
-    @JsonOverride
-    @JsonProcessorData(value = "harvestTool")
+    @JsonProcessorData(value = "harvestTool", allowRuntimeChanges = true)
     public void setHarvestTool(String harvestTool)
     {
         this.harvestTool = harvestTool;
