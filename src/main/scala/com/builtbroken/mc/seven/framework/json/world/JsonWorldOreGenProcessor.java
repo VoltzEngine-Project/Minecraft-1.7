@@ -82,11 +82,7 @@ public class JsonWorldOreGenProcessor extends JsonProcessor<JsonWorldOreGenData>
         }
 
         //Create
-        JsonWorldOreGenData data = new JsonWorldOreGenData(this, oreBlock, oreName, min, max, branch, chunk);
-
-        //Inject
-        processAdditionalKeys(data, genData);
-        return data;
+        return new JsonWorldOreGenData(this, oreBlock, oreName, min, max, branch, chunk);
     }
 
     @Override
