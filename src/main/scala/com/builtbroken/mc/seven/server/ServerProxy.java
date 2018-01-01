@@ -1,5 +1,6 @@
 package com.builtbroken.mc.seven.server;
 
+import com.builtbroken.mc.core.content.blast.holiday.ExGiftClient;
 import com.builtbroken.mc.seven.CommonProxy;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
@@ -27,6 +28,7 @@ public class ServerProxy extends CommonProxy
 
         //Register explosives
         ExplosiveRegistry.registerOrGetExplosive(References.DOMAIN, "Emp", new ExEmp());
+        ExplosiveRegistry.registerOrGetExplosive(References.DOMAIN, "Gift", new ExGiftClient());
 
         //Handle command system
         GroupProfileHandler.enablePermissions = References.configuration.getBoolean("EnablePermissionSystem", "Commands", Engine.runningAsDev, "Enabled Voltz Engine built in command permission system that works much like Bukkit's PermissionEx Plugin");

@@ -21,6 +21,7 @@ import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.core.commands.CommandVE;
 import com.builtbroken.mc.core.commands.json.visuals.CommandJsonRender;
 import com.builtbroken.mc.core.content.blast.emp.ExEmp;
+import com.builtbroken.mc.core.content.blast.holiday.ExGiftClient;
 import com.builtbroken.mc.core.content.entity.bat.ex.EntityExBat;
 import com.builtbroken.mc.core.content.entity.bat.ex.RenderExBat;
 import com.builtbroken.mc.core.content.entity.creeper.EntityExCreeper;
@@ -150,6 +151,7 @@ public class ClientProxy extends CommonProxy
 
         //Register client side version of blasts
         ExplosiveRegistry.registerOrGetExplosive(References.DOMAIN, "Emp", new ExEmp());
+        ExplosiveRegistry.registerOrGetExplosive(References.DOMAIN, "Gift", new ExGiftClient());
 
         //Register graphics
         RenderingRegistry.registerEntityRenderingHandler(EntityExCreeper.class, new RenderExCreeper());
