@@ -233,7 +233,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public boolean removedByPlayer(EntityPlayer player, boolean willHarvest)
     {
-        MultiBlockHelper.destroyMultiBlockStructure(getMultiTileHost() != null ? getMultiTileHost() : this, willHarvest, true, true);
+        MultiBlockHelper.destroyMultiBlockStructure(getMultiTileHost() != null ? getMultiTileHost() : this, false, true, true);
         return true;
     }
 
