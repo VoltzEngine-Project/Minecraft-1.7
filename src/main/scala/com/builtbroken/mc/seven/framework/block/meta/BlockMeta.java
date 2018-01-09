@@ -2,6 +2,7 @@ package com.builtbroken.mc.seven.framework.block.meta;
 
 import com.builtbroken.mc.framework.json.imp.IJSONMetaConvert;
 import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
+import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
 import com.builtbroken.mc.seven.framework.block.BlockPropertyData;
 import com.builtbroken.mc.seven.framework.block.tile.ITileProvider;
@@ -40,9 +41,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     public String getUnlocalizedName()
     {
         //Fix for some mods using unlocalized name for IDs
-        return super.getUnlocalizedName()
-                .replace(META_INDEX_LOCALIZATION_KEY, "")
-                .replace(META_NAME_LOCALIZATION_KEY, "");
+        return "tile." + InventoryUtility.getRegistryName(this);
     }
 
     @Override
