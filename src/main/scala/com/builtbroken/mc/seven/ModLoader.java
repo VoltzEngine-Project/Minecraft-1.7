@@ -69,7 +69,6 @@ import com.builtbroken.mc.lib.world.edit.PlacementData;
 import com.builtbroken.mc.lib.world.edit.PlacementDataExtended;
 import com.builtbroken.mc.lib.world.map.radar.RadarRegistry;
 import com.builtbroken.mc.lib.world.map.radio.RadioRegistry;
-import com.builtbroken.mc.lib.world.map.tile.TileMapRegistry;
 import com.builtbroken.mc.prefab.tile.TileEvents;
 import com.builtbroken.mc.prefab.tile.item.ItemBlockMetadata;
 import com.builtbroken.mc.seven.framework.block.json.JsonBlockListenerProcessor;
@@ -231,9 +230,6 @@ public class ModLoader extends EngineLoader
 
         MinecraftForge.EVENT_BUS.register(RadarRegistry.INSTANCE);
         FMLCommonHandler.instance().bus().register(RadarRegistry.INSTANCE);
-
-        MinecraftForge.EVENT_BUS.register(TileMapRegistry.INSTANCE);
-        FMLCommonHandler.instance().bus().register(TileMapRegistry.INSTANCE);
 
         MinecraftForge.EVENT_BUS.register(RadioRegistry.INSTANCE);
         FMLCommonHandler.instance().bus().register(RadioRegistry.INSTANCE);
