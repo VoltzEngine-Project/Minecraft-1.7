@@ -1,7 +1,6 @@
 package com.builtbroken.mc.seven.framework.block.listeners;
 
 import com.builtbroken.jlib.data.vector.IPos3D;
-import com.builtbroken.jlib.lang.StringHelpers;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.data.Direction;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
@@ -14,10 +13,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.block.Block;
 import net.minecraft.world.IBlockAccess;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @see <a href="https://github.com/BuiltBrokenModding/VoltzEngine/blob/development/license.md">License</a> for what you can and can't do with the code.
@@ -40,56 +36,66 @@ public class PathPlacementListener extends AdjacentPlacementListener
     @Override
     protected boolean isPlacementValid()
     {
-        long start = System.nanoTime();
-        List<BlockPos> pathedPositions = new ArrayList();
-        Queue<BlockPos> pathNextList = new LinkedList();
+        if(isServer())
+        {
+            //Contains block moved over
+            final HashSet<BlockPos> pathedPositions = new HashSet();
+            //Contains blocks to path next
+            final Queue<BlockPos> pathNextList = new LinkedList();
 
-        BlockPos center = new BlockPos(this);
-        if (canPath(center))
-        {
-            pathNextList.add(center);
-        }
-        //Fix for placement code where center is not the block we are placing
-        else
-        {
-            for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
+            //Center of the path
+            final BlockPos center = new BlockPos(this);
+
+            //Attempt to path center first
+            if (canPath(center))
             {
-                pathNextList.add(center.add(direction));
+                pathNextList.add(center);
             }
-        }
-
-        //Loop all tiles
-        while (!pathNextList.isEmpty())
-        {
-            //Get next tile and add to pathed list
-            BlockPos nextPos = pathNextList.poll();
-            pathedPositions.add(nextPos);
-
-            System.out.println(center + ">>Pathing: " + nextPos);
-
-            //Loop connections
-            for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
+            //Fix for placement code where center is not the block we are placing
+            else
             {
-                BlockPos pos = nextPos.add(direction);
-
-                //Only do check once per tile
-                if (!pathedPositions.contains(pos) && canPath(pos))
+                for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
                 {
-                    //Check if valid, exit condition for loop
-                    if (isSupportingTile(getBlockAccess(), pos))
-                    {
-                        System.out.println("found connection in time: " + StringHelpers.formatNanoTime(System.nanoTime() - start));
-                        return true;
-                    }
-
-                    //Add to path next list
-                    pathNextList.add(pos);
+                    pathNextList.add(center.add(direction));
                 }
             }
-        }
 
-        System.out.println("failed to find connection in time: " + StringHelpers.formatNanoTime(System.nanoTime() - start));
-        return false;
+            //Loop all tiles
+            while (!pathNextList.isEmpty())
+            {
+                //Get next tile and add to pathed list
+                final BlockPos nextPos = pathNextList.poll();
+                pathedPositions.add(nextPos);
+
+                //Loop connections
+                for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
+                {
+                    final BlockPos pos = nextPos.add(direction);
+
+                    if (!pathedPositions.contains(pos) && !pathNextList.contains(pos))
+                    {
+                        //Only do check once per tile
+                        if (canPath(pos))
+                        {
+                            //Check if valid, exit condition for loop
+                            if (isSupportingTile(getBlockAccess(), pos))
+                            {
+                                return true;
+                            }
+
+                            //Add to path next list
+                            pathNextList.add(pos);
+                        }
+                        else
+                        {
+                            pathedPositions.add(pos);
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     protected boolean canPath(IPos3D pos)
