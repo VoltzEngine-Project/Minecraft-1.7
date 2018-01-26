@@ -1,16 +1,18 @@
 package com.builtbroken.mc.seven.framework.block.listeners;
 
+import com.builtbroken.jlib.data.vector.IPos3D;
+import com.builtbroken.jlib.lang.StringHelpers;
+import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.data.Direction;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.block.imp.ITileEventListenerBuilder;
-import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
-import com.builtbroken.mc.imp.transform.vector.Pos;
+import com.builtbroken.mc.imp.transform.vector.BlockPos;
 import com.builtbroken.mc.lib.data.BlockStateEntry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.block.Block;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -38,10 +40,11 @@ public class PathPlacementListener extends AdjacentPlacementListener
     @Override
     protected boolean isPlacementValid()
     {
-        List<Pos> pathLocations = new ArrayList();
-        Queue<Pos> pathNextList = new LinkedList();
+        long start = System.nanoTime();
+        List<BlockPos> pathedPositions = new ArrayList();
+        Queue<BlockPos> pathNextList = new LinkedList();
 
-        Pos center = new Pos(this);
+        BlockPos center = new BlockPos(this);
         if (canPath(center))
         {
             pathNextList.add(center);
@@ -49,7 +52,7 @@ public class PathPlacementListener extends AdjacentPlacementListener
         //Fix for placement code where center is not the block we are placing
         else
         {
-            for (ForgeDirection direction : supportedDirections == null ? ForgeDirection.VALID_DIRECTIONS : supportedDirections)
+            for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
             {
                 pathNextList.add(center.add(direction));
             }
@@ -59,19 +62,23 @@ public class PathPlacementListener extends AdjacentPlacementListener
         while (!pathNextList.isEmpty())
         {
             //Get next tile and add to pathed list
-            Pos nextPos = pathNextList.poll();
-            pathLocations.add(nextPos);
+            BlockPos nextPos = pathNextList.poll();
+            pathedPositions.add(nextPos);
+
+            System.out.println(center + ">>Pathing: " + nextPos);
 
             //Loop connections
-            for (ForgeDirection direction : supportedDirections == null ? ForgeDirection.VALID_DIRECTIONS : supportedDirections)
+            for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
             {
-                Pos pos = nextPos.add(direction);
+                BlockPos pos = nextPos.add(direction);
+
                 //Only do check once per tile
-                if (!pathLocations.contains(pos) && canPath(pos))
+                if (!pathedPositions.contains(pos) && canPath(pos))
                 {
                     //Check if valid, exit condition for loop
                     if (isSupportingTile(getBlockAccess(), pos))
                     {
+                        System.out.println("found connection in time: " + StringHelpers.formatNanoTime(System.nanoTime() - start));
                         return true;
                     }
 
@@ -81,10 +88,11 @@ public class PathPlacementListener extends AdjacentPlacementListener
             }
         }
 
+        System.out.println("failed to find connection in time: " + StringHelpers.formatNanoTime(System.nanoTime() - start));
         return false;
     }
 
-    protected boolean canPath(Pos pos)
+    protected boolean canPath(IPos3D pos)
     {
         return isInDistance(pos) && !getBlockAccess().isAirBlock(pos.xi(), pos.yi(), pos.zi()) && isPathTile(getBlockAccess(), pos);
     }
@@ -96,12 +104,12 @@ public class PathPlacementListener extends AdjacentPlacementListener
      * @param pos
      * @return
      */
-    protected boolean isPathTile(IBlockAccess access, Pos pos)
+    protected boolean isPathTile(IBlockAccess access, IPos3D pos)
     {
         return pathBlocks.isEmpty() && pathContentIDs.isEmpty() || doesContainTile(access, pos, pathBlocks, pathContentIDs);
     }
 
-    protected boolean isInDistance(Pos pos)
+    protected boolean isInDistance(IPos3D pos)
     {
         if (pos.xi() > pathRange + xi() || pos.xi() < xi() - pathRange)
         {

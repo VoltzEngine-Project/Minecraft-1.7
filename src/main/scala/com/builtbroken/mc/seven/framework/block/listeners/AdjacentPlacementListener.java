@@ -1,10 +1,12 @@
 package com.builtbroken.mc.seven.framework.block.listeners;
 
-import com.builtbroken.mc.api.abstraction.entity.IEntityData;
+import com.builtbroken.jlib.data.vector.IPos3D;
 import com.builtbroken.mc.api.IModObject;
+import com.builtbroken.mc.api.abstraction.entity.IEntityData;
 import com.builtbroken.mc.api.data.ActionResponse;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.data.Direction;
 import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.imp.transform.vector.Pos;
@@ -16,7 +18,6 @@ import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
 
     protected List<BlockStateEntry> blockList = new ArrayList();
     protected List<String> contentIDs = new ArrayList();
-    protected ForgeDirection[] supportedDirections = null;
+    protected Direction[] supportedDirections = null;
 
     public final Block block;
 
@@ -110,7 +111,7 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
         //Loops checking for connections
         final Pos center = new Pos(this);
         IBlockAccess access = getBlockAccess();
-        for (ForgeDirection direction : supportedDirections == null ? ForgeDirection.VALID_DIRECTIONS : supportedDirections)
+        for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
         {
             Pos pos = center.add(direction);
             if (isSupportingTile(access, pos))
@@ -128,7 +129,7 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
      * @param pos
      * @return
      */
-    protected boolean isSupportingTile(IBlockAccess access, Pos pos)
+    protected boolean isSupportingTile(IBlockAccess access, IPos3D pos)
     {
         return doesContainTile(access, pos, blockList, contentIDs);
     }
@@ -142,12 +143,12 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
      * @param contentIDs - list of content IDs of tiles
      * @return true if either list contains the tile
      */
-    protected boolean doesContainTile(IBlockAccess access, Pos pos, List<BlockStateEntry> blockList, List<String> contentIDs)
+    protected boolean doesContainTile(IBlockAccess access, IPos3D pos, List<BlockStateEntry> blockList, List<String> contentIDs)
     {
-        Block block = pos.getBlock(access);
+        Block block = access.getBlock(pos.xi(), pos.yi(), pos.zi());
         if (block != null)
         {
-            int meta = pos.getBlockMetadata(access);
+            int meta = access.getBlockMetadata(pos.xi(), pos.yi(), pos.zi());
 
             if (block != null)
             {
@@ -162,7 +163,7 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
 
                 //Check unique content ids TODO merge content ID check into BlockStateEntry
                 List<String> ids = new ArrayList();
-                TileEntity tile = pos.getTileEntity(access);
+                TileEntity tile = access.getTileEntity(pos.xi(), pos.yi(), pos.zi());
                 if (tile != null && !tile.isInvalid())
                 {
                     if (tile instanceof ITileNodeHost && ((ITileNodeHost) tile).getTileNode() != null)
@@ -205,7 +206,7 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
         //TODO add rotation support
         if (inputElement.isJsonArray())
         {
-            ArrayList<ForgeDirection> directions = new ArrayList();
+            ArrayList<Direction> directions = new ArrayList();
             //Loop through elements in array
             for (JsonElement element : inputElement.getAsJsonArray())
             {
@@ -213,31 +214,31 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
                 String value = primitive.getAsString();
                 if (value.equalsIgnoreCase("north"))
                 {
-                    directions.add(ForgeDirection.NORTH);
+                    directions.add(Direction.NORTH);
                 }
                 else if (value.equalsIgnoreCase("south"))
                 {
-                    directions.add(ForgeDirection.SOUTH);
+                    directions.add(Direction.SOUTH);
                 }
                 else if (value.equalsIgnoreCase("east"))
                 {
-                    directions.add(ForgeDirection.EAST);
+                    directions.add(Direction.EAST);
                 }
                 else if (value.equalsIgnoreCase("west"))
                 {
-                    directions.add(ForgeDirection.WEST);
+                    directions.add(Direction.WEST);
                 }
                 else if (value.equalsIgnoreCase("up"))
                 {
-                    directions.add(ForgeDirection.UP);
+                    directions.add(Direction.UP);
                 }
                 else if (value.equalsIgnoreCase("down"))
                 {
-                    directions.add(ForgeDirection.DOWN);
+                    directions.add(Direction.DOWN);
                 }
             }
 
-            this.supportedDirections = directions.toArray(new ForgeDirection[directions.size()]);
+            this.supportedDirections = directions.toArray(new Direction[directions.size()]);
         }
     }
 
