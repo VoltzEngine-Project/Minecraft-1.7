@@ -108,18 +108,22 @@ public class AdjacentPlacementListener extends TileListener implements IPlacemen
      */
     protected boolean isPlacementValid()
     {
-        //Loops checking for connections
-        final Pos center = new Pos(this);
-        IBlockAccess access = getBlockAccess();
-        for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
+        if(isServer())
         {
-            Pos pos = center.add(direction);
-            if (isSupportingTile(access, pos))
+            //Loops checking for connections
+            final Pos center = new Pos(this);
+            IBlockAccess access = getBlockAccess();
+            for (Direction direction : supportedDirections == null ? Direction.DIRECTIONS : supportedDirections)
             {
-                return true;
+                Pos pos = center.add(direction);
+                if (isSupportingTile(access, pos))
+                {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
