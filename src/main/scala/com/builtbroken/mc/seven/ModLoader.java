@@ -33,6 +33,7 @@ import com.builtbroken.mc.core.handler.InteractionHandler;
 import com.builtbroken.mc.core.handler.SaveManager;
 import com.builtbroken.mc.core.handler.TileTaskTickHandler;
 import com.builtbroken.mc.core.registry.ModManager;
+import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.entity.effect.EntityEffectHandler;
 import com.builtbroken.mc.framework.entity.effect.effects.BleedingEffect;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
@@ -639,6 +640,8 @@ public class ModLoader extends EngineLoader
                 thread.kill();
             }
         }
+        //Cleanup data between worlds
+        GlobalAccessSystem.cleanup(); //TODO move to loadable
     }
 
     @Mod.EventHandler
