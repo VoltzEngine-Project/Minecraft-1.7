@@ -310,15 +310,7 @@ public class ClientProxy extends CommonProxy
                 //TODO add config for key binding
                 if (key == Keyboard.KEY_GRAVE && crtl)
                 {
-                    if (!(Minecraft.getMinecraft().currentScreen instanceof GuiAccessSystem)) //TODO check previous GUI to prevent bugs (e.g. prevent opening on death screen)
-                    {
-                        if (Minecraft.getMinecraft().currentScreen != null)
-                        {
-                            Minecraft.getMinecraft().currentScreen.onGuiClosed();
-                        }
-                        Minecraft.getMinecraft().displayGuiScreen(new GuiAccessSystem());
-                        //TODO cache previous open GUI to restore that GUI
-                    }
+                    openPermissionGUI(null);
                 }
                 else if (key == Keyboard.KEY_HOME && crtl)
                 {
@@ -331,6 +323,22 @@ public class ClientProxy extends CommonProxy
                     Minecraft.getMinecraft().thePlayer.sendChatMessage("Done baking item renders");
                 }
             }
+        }
+    }
+
+    @Override
+    public void openPermissionGUI(String profileID)
+    {
+        if (!(Minecraft.getMinecraft().currentScreen instanceof GuiAccessSystem)) //TODO check previous GUI to prevent bugs (e.g. prevent opening on death screen)
+        {
+            if (Minecraft.getMinecraft().currentScreen != null)
+            {
+                Minecraft.getMinecraft().currentScreen.onGuiClosed();
+            }
+            GuiAccessSystem gui = new GuiAccessSystem();
+            gui.loadProfile(profileID);
+            Minecraft.getMinecraft().displayGuiScreen(gui);
+            //TODO cache previous open GUI to restore that GUI
         }
     }
 

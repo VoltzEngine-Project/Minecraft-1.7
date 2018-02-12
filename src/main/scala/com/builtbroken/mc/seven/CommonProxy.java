@@ -18,7 +18,6 @@ import java.awt.*;
  */
 public class CommonProxy extends AbstractProxy
 {
-
     public FrameDebug debugWindow;
 
     public void showDebugWindow()
@@ -54,5 +53,10 @@ public class CommonProxy extends AbstractProxy
         EntityRegistry.registerModEntity(EntityExCreeper.class, "ExCreeper", 55, Engine.loaderInstance, 100, 1, true);
         EntityRegistry.registerModEntity(EntityExBat.class, "ExBat", 56, Engine.loaderInstance, 100, 1, true);
 
+    }
+
+    public void openPermissionGUI(String profileID)
+    {
+        //TODO send packet
     }
 }
