@@ -55,7 +55,22 @@ public class CommonProxy extends AbstractProxy
 
     }
 
+    /**
+     * Opens the global access profile manager GUI
+     *
+     * @param profileID
+     */
     public void openPermissionGUI(String profileID)
+    {
+        //TODO send packet
+    }
+
+    /**
+     * Opens the user manual / help GUI
+     *
+     * @param page_id - id of the page to open
+     */
+    public void openHelpGUI(String page_id)
     {
         //TODO send packet
     }

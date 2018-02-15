@@ -342,6 +342,12 @@ public class ClientProxy extends CommonProxy
         }
     }
 
+    @Override
+    public void openHelpGUI(String page_id)
+    {
+
+    }
+
     @SubscribeEvent
     public void clientUpdate(TickEvent.WorldTickEvent event)
     {
