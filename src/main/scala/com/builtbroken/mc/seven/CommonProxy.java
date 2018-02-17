@@ -6,6 +6,7 @@ import com.builtbroken.mc.core.content.entity.creeper.EntityExCreeper;
 import com.builtbroken.mc.core.registry.CommonRegistryProxy;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.debug.gui.FrameDebug;
+import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -65,12 +66,13 @@ public class CommonProxy extends AbstractProxy
         //TODO send packet
     }
 
-    /**
-     * Opens the user manual / help GUI
-     *
-     * @param page_id - id of the page to open
-     */
+    @Deprecated //was never implement, left in to avoid crashes
     public void openHelpGUI(String page_id)
+    {
+
+    }
+
+    public void openHelpGUI(GuideEntry entry)
     {
         //TODO send packet
     }

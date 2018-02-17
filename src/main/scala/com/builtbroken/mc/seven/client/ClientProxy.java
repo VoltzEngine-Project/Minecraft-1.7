@@ -34,6 +34,7 @@ import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.access.global.gui.GuiAccessSystem;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
+import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
 import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
@@ -343,9 +344,11 @@ public class ClientProxy extends CommonProxy
     }
 
     @Override
-    public void openHelpGUI(String page_id)
+    public void openHelpGUI(GuideEntry entry)
     {
-
+        //TODO figure out what type of entry it is (book, chapter, section, page)
+        //TODO open page if exists
+        //TODO if doesn't exist, showing missing page and note the pages are community generated. Try to include links to matching book.
     }
 
     @SubscribeEvent
