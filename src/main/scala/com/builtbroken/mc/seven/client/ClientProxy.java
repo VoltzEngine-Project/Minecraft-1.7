@@ -35,6 +35,7 @@ import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
+import com.builtbroken.mc.framework.guide.GuideBookModule;
 import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
@@ -45,6 +46,7 @@ import com.builtbroken.mc.lib.world.map.block.ExtendedBlockDataManager;
 import com.builtbroken.mc.lib.world.map.data.ChunkData;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import com.builtbroken.mc.seven.CommonProxy;
+import com.builtbroken.mc.seven.EngineLoaderMod;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapperClient;
 import com.builtbroken.mc.seven.client.json.tile.TileRenderHandler;
@@ -86,10 +88,12 @@ import java.util.Map;
  */
 public class ClientProxy extends CommonProxy
 {
+    @Override
     public void onLoad()
     {
         ModManager.proxy = new ClientRegistryProxy();
         Engine.minecraft = MinecraftWrapper.INSTANCE = new MinecraftWrapperClient();
+        EngineLoaderMod.instance.loader.applyModule(GuideBookModule.INSTANCE);
     }
 
     @Override
@@ -139,6 +143,7 @@ public class ClientProxy extends CommonProxy
         super.loadJsonContentHandlers();
         JsonBlockListenerProcessor.addBuilder(new RotatableIconListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new JsonIconListener.Builder());
+
 
         if (Engine.runningAsDev)
         {
