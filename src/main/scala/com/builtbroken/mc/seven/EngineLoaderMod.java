@@ -117,7 +117,7 @@ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
  * Created by Dark(DarkGuardsman, Robert) on 8/12/2017.
  */
 @Mod(modid = References.ID, name = References.NAME, version = References.VERSION, dependencies = "required-after:Forge;after:TConstruct")
-public class ModLoader extends EngineLoader
+public class EngineLoaderMod extends EngineLoader
 {
     @SidedProxy(clientSide = "com.builtbroken.mc.seven.client.ClientProxy", serverSide = "com.builtbroken.mc.seven.server.ServerProxy")
     public static CommonProxy proxy;
@@ -129,7 +129,7 @@ public class ModLoader extends EngineLoader
     public static ModMetadata metadata;
 
     @Mod.Instance(References.ID)
-    public static ModLoader instance;
+    public static EngineLoaderMod instance;
 
     public ModManager manager;
     public static Configuration config;
