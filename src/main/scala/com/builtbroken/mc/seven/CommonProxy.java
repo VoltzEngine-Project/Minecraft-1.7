@@ -6,6 +6,7 @@ import com.builtbroken.mc.core.content.entity.creeper.EntityExCreeper;
 import com.builtbroken.mc.core.registry.CommonRegistryProxy;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.debug.gui.FrameDebug;
+import com.builtbroken.mc.framework.guide.GuideBookModule;
 import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.framework.mod.AbstractProxy;
 import com.builtbroken.mc.seven.abstraction.MinecraftWrapper;
@@ -60,7 +61,9 @@ public class CommonProxy extends AbstractProxy
      * Opens the global access profile manager GUI
      *
      * @param profileID
+     * @deprecated replaced with {@link com.builtbroken.mc.framework.access.global.GlobalAccessSystem#openGUI(String)}
      */
+    @Deprecated
     public void openPermissionGUI(String profileID)
     {
         //TODO send packet
@@ -72,8 +75,9 @@ public class CommonProxy extends AbstractProxy
 
     }
 
+    @Deprecated //was never implement, left in to avoid crashes
     public void openHelpGUI(GuideEntry entry)
     {
-        //TODO send packet
+        GuideBookModule.openGUI(entry);
     }
 }

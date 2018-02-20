@@ -3,6 +3,7 @@ package com.builtbroken.mc.seven.client;
 import com.builtbroken.mc.client.ExplosiveRegistryClient;
 import com.builtbroken.mc.client.effects.VisualEffectRegistry;
 import com.builtbroken.mc.client.effects.providers.*;
+import com.builtbroken.mc.client.gui.GuiQuickAccess;
 import com.builtbroken.mc.client.helpers.ItemTextureBaker;
 import com.builtbroken.mc.client.json.ClientDataHandler;
 import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
@@ -31,7 +32,7 @@ import com.builtbroken.mc.core.handler.RenderSelection;
 import com.builtbroken.mc.core.network.packet.callback.chunk.PacketRequestData;
 import com.builtbroken.mc.core.registry.ClientRegistryProxy;
 import com.builtbroken.mc.core.registry.ModManager;
-import com.builtbroken.mc.framework.access.global.gui.GuiAccessSystem;
+import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
 import com.builtbroken.mc.framework.guide.GuideEntry;
@@ -311,7 +312,7 @@ public class ClientProxy extends CommonProxy
                 //TODO add config for key binding
                 if (key == Keyboard.KEY_GRAVE && crtl)
                 {
-                    openPermissionGUI(null);
+                    openQuickAccessGUI();
                 }
                 else if (key == Keyboard.KEY_HOME && crtl)
                 {
@@ -327,20 +328,25 @@ public class ClientProxy extends CommonProxy
         }
     }
 
-    @Override
-    public void openPermissionGUI(String profileID)
+    public static void openQuickAccessGUI()
     {
-        if (!(Minecraft.getMinecraft().currentScreen instanceof GuiAccessSystem)) //TODO check previous GUI to prevent bugs (e.g. prevent opening on death screen)
+        if (!(Minecraft.getMinecraft().currentScreen instanceof GuiQuickAccess)) //TODO check previous GUI to prevent bugs (e.g. prevent opening on death screen)
         {
+            //Close previous
             if (Minecraft.getMinecraft().currentScreen != null)
             {
                 Minecraft.getMinecraft().currentScreen.onGuiClosed();
             }
-            GuiAccessSystem gui = new GuiAccessSystem();
-            gui.loadProfile(profileID);
-            Minecraft.getMinecraft().displayGuiScreen(gui);
-            //TODO cache previous open GUI to restore that GUI
+
+            //Open
+            Minecraft.getMinecraft().displayGuiScreen(new GuiQuickAccess());
         }
+    }
+
+    @Override
+    public void openPermissionGUI(String profileID)
+    {
+        GlobalAccessSystem.openGUI(profileID);
     }
 
     @Override
