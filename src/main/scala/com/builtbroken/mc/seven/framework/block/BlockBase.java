@@ -615,13 +615,16 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "change");
-        while (it.hasNext())
+        if (!world.isRemote && world.blockExists(x, y, z)) //Fix inf loop caused by unloaded chunks
         {
-            ITileEventListener next = it.next();
-            if (next instanceof IChangeListener)
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "change");
+            while (it.hasNext())
             {
-                ((IChangeListener) next).onNeighborBlockChange(block);
+                ITileEventListener next = it.next();
+                if (next instanceof IChangeListener)
+                {
+                    ((IChangeListener) next).onNeighborBlockChange(block);
+                }
             }
         }
     }
@@ -629,15 +632,24 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "change");
-        while (it.hasNext())
+        if (world instanceof World && !((World) world).isRemote && ((World) world).blockExists(x, y, z))
         {
-            ITileEventListener next = it.next();
-            if (next instanceof IChangeListener)
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "change");
+            while (it.hasNext())
             {
-                ((IChangeListener) next).onNeighborChange(tileX, tileY, tileZ);
+                ITileEventListener next = it.next();
+                if (next instanceof IChangeListener)
+                {
+                    ((IChangeListener) next).onNeighborChange(tileX, tileY, tileZ);
+                }
             }
         }
+    }
+
+    @Override
+    public boolean getWeakChanges(IBlockAccess world, int x, int y, int z)
+    {
+        return super.getWeakChanges(world, x, y, z);
     }
 
     @Override
@@ -965,7 +977,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public boolean isNormalCube()
     {
-        return  data.isNormalCube() || getMaterial().isOpaque() && renderAsNormalBlock() && !canProvidePower();
+        return data.isNormalCube() || getMaterial().isOpaque() && renderAsNormalBlock() && !canProvidePower();
     }
 
     @Override
