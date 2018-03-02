@@ -199,7 +199,7 @@ public class ListenerIterator implements Iterator<ITileEventListener>, Iterable<
     {
         if (access instanceof World)
         {
-            return world;
+            return (World) access;
         }
         return world;
     }
