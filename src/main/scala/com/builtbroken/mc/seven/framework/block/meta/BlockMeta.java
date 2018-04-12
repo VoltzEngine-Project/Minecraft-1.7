@@ -1,5 +1,6 @@
 package com.builtbroken.mc.seven.framework.block.meta;
 
+import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.json.imp.IJSONMetaConvert;
 import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
@@ -73,9 +74,10 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
                 //Option for automatic ore name selection using a format key with replacement entries
                 for (int i = 0; i < metaDataValues.length; i++)
                 {
-                    if (metaDataValues[i] != null)
+                    MetaData data = getMetaData(i);
+                    if (data != null)
                     {
-                        String oreName = data.oreName.replace("${metaLocalization}", metaDataValues[i].localization);
+                        String oreName = this.data.oreName.replace("${metaLocalization}", data.localization);
                         OreDictionary.registerOre(oreName, new ItemStack(this, 1, i));
                     }
                 }
@@ -85,9 +87,10 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
         //Load meta exclusive ore names
         for (int i = 0; i < metaDataValues.length; i++)
         {
-            if (metaDataValues[i] != null && metaDataValues[i].oreNames != null)
+            MetaData data = getMetaData(i);
+            if (data != null && data.oreNames != null)
             {
-                for (String s : metaDataValues[i].oreNames)
+                for (String s : data.oreNames)
                 {
                     if (s != null && !s.isEmpty())
                     {
@@ -103,7 +106,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     protected void getRenderStates(Stack<String> stack, int side, int meta)
     {
         super.getRenderStates(stack, side, meta);
-        MetaData data = metaDataValues[meta];
+        MetaData data = getMetaData(meta);
         if (data != null)
         {
             stack.push(data.ID);
@@ -133,7 +136,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     @Override
     public int damageDropped(int meta)
     {
-        MetaData data = metaDataValues[meta];
+        MetaData data = getMetaData(meta);
         if (data != null)
         {
             if (data.getItemToDrop() != null)
@@ -151,7 +154,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     @Override
     public Item getItemDropped(int meta, Random random, int fortune)
     {
-        MetaData data = metaDataValues[meta];
+        MetaData data = getMetaData(meta);
         if (data != null && data.getItemToDrop() != null)
         {
             return data.getItemToDrop().getItem();
@@ -162,7 +165,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     @Override
     public int quantityDropped(int meta, int fortune, Random random)
     {
-        MetaData data = metaDataValues[meta];
+        MetaData data = getMetaData(meta);
         if (data != null && data.getItemToDrop() != null)
         {
             final int count = Math.max(1, data.getItemToDrop().stackSize);
@@ -193,7 +196,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     protected int getBlockHarvestLevel(int metadata)
     {
         int level = super.getBlockHarvestLevel(metadata);
-        MetaData data = metaDataValues[metadata];
+        MetaData data = getMetaData(metadata);
         if (data != null && data.harvestLevel > level)
         {
             level = data.harvestLevel;
@@ -204,7 +207,7 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     @Override
     protected String getBlockHarvestTool(int metadata)
     {
-        MetaData data = metaDataValues[metadata];
+        MetaData data = getMetaData(metadata);
         if (data != null && data.harvestTool != null)
         {
             return data.harvestTool;
@@ -216,5 +219,18 @@ public class BlockMeta extends BlockBase implements IJSONMetaConvert
     public String toString()
     {
         return "BlockMeta[" + data.name + "]";
+    }
+
+    public MetaData getMetaData(int meta)
+    {
+        if (meta >= 0 && meta < metaDataValues.length)
+        {
+            return metaDataValues[meta];
+        }
+        else if (Engine.runningAsDev)
+        {
+            Engine.logger().error("BlockMeta#getMeta(" + meta + ") passed in an invalid meta value", new RuntimeException("stack"));
+        }
+        return null;
     }
 }

@@ -1037,7 +1037,13 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public IIcon getIcon(IBlockAccess world, int x, int y, int z, int side)
     {
-        final int meta = world.getBlockMetadata(x, y, z);
+        int meta = world.getBlockMetadata(x, y, z);
+        if (Engine.runningAsDev && (meta < 0 || meta > 15))
+        {
+            Engine.logger().error(String.format("BlockBase#getIcon(%s, %s, %s, %s, %s) -> meta returned from world was invalid, meta: %s, block: %s",
+                    world, x, y, z, side, meta, data.getMod() + ":" + data.registryKey), new RuntimeException("stack"));
+            meta = 0;
+        }
 
         ListenerIterator it = new ListenerIterator(world, x, y, z, this, "icon");
         while (it.hasNext())

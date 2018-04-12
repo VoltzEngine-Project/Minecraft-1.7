@@ -45,9 +45,10 @@ public class ItemBlockMeta extends ItemBlockBase implements IJSONMetaConvert
             //Assemble lang key, only called once per run
             String lang = "tile." + getBlockBase().unlocalizedBlockName;
             lang = lang.replace(BlockMeta.META_INDEX_LOCALIZATION_KEY, "" + damage);
-            if (getBlockJson().metaDataValues[damage] != null && getBlockJson().metaDataValues[damage].localization != null)
+            MetaData metaData = getBlockJson().getMetaData(damage);
+            if (metaData != null && metaData.localization != null)
             {
-                lang = lang.replace(BlockMeta.META_NAME_LOCALIZATION_KEY, getBlockJson().metaDataValues[damage].localization);
+                lang = lang.replace(BlockMeta.META_NAME_LOCALIZATION_KEY, metaData.localization);
             }
 
             //Cache and return
@@ -60,11 +61,12 @@ public class ItemBlockMeta extends ItemBlockBase implements IJSONMetaConvert
     protected List<String> getIconStateKeys(RenderData data, int meta, int pass)
     {
         List<String> keys = new ArrayList();
-        if (meta >= 0 && meta < 16 && getBlockJson().metaDataValues[meta] != null)
+        MetaData metaData = getBlockJson().getMetaData(meta);
+        if (metaData != null)
         {
-            keys.add(RenderData.INVENTORY_RENDER_KEY + "." + getBlockJson().metaDataValues[meta].ID + "." + pass);
-            keys.add(RenderData.INVENTORY_RENDER_KEY + "." + getBlockJson().metaDataValues[meta].ID);
-            keys.add(getBlockJson().metaDataValues[meta].ID);
+            keys.add(RenderData.INVENTORY_RENDER_KEY + "." + metaData.ID + "." + pass);
+            keys.add(RenderData.INVENTORY_RENDER_KEY + "." + metaData.ID);
+            keys.add(metaData.ID);
         }
         keys.add(RenderData.INVENTORY_RENDER_KEY + "." + meta + "." + pass);
         keys.add(RenderData.INVENTORY_RENDER_KEY + "." + meta);

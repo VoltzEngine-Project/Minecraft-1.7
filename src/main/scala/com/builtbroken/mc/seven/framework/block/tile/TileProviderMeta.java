@@ -25,9 +25,13 @@ public class TileProviderMeta extends JsonGenData implements ITileProvider
     @Override
     public TileEntity createNewTileEntity(BlockBase block, World world, int meta)
     {
-        if (block instanceof BlockMeta && ((BlockMeta) block).metaDataValues[meta] != null && ((BlockMeta) block).metaDataValues[meta].tileEntityProvider != null)
+        if (block instanceof BlockMeta)
         {
-            return ((BlockMeta) block).metaDataValues[meta].tileEntityProvider.createNewTileEntity(block, world, meta);
+            MetaData metaData = ((BlockMeta) block).getMetaData(meta);
+            if(metaData != null && metaData.tileEntityProvider != null)
+            {
+                return metaData.tileEntityProvider.createNewTileEntity(block, world, meta);
+            }
         }
         return backupProvider != null ? backupProvider.createNewTileEntity(block, world, meta) : null;
     }
