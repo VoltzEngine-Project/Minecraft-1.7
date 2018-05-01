@@ -367,11 +367,16 @@ public class TileEntityWrapper extends TileEntity implements ITileNodeHost, ITil
                 }
             }
         }
-        if (renderBoundCache == null)
+        if (renderBoundCache == null || isBoxZero(renderBoundCache))
         {
-            renderBoundCache = getHostBlock().data.getRenderBounds().clone().add(xi(), yi(), zi()).toAABB();
+            renderBoundCache = getHostBlock().data.getRenderBounds().clone().add(xi(), yi(), zi()).getAABB();
         }
         return renderBoundCache;
+    }
+
+    private boolean isBoxZero(AxisAlignedBB bb)
+    {
+        return bb.minX == bb.maxX || bb.minY == bb.maxY || bb.minZ == bb.maxZ;
     }
 
     /**
