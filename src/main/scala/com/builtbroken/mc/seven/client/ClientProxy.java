@@ -11,6 +11,7 @@ import com.builtbroken.mc.client.json.audio.AudioJsonProcessor;
 import com.builtbroken.mc.client.json.effects.EffectJsonProcessor;
 import com.builtbroken.mc.client.json.effects.EffectListJsonProcessor;
 import com.builtbroken.mc.client.json.models.ModelJsonProcessor;
+import com.builtbroken.mc.client.json.models.cube.JsonConverterModelCube;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.client.json.render.item.ItemJsonRenderer;
 import com.builtbroken.mc.client.json.render.processor.RenderJsonProcessor;
@@ -40,6 +41,7 @@ import com.builtbroken.mc.framework.guide.GuideEntry;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
 import com.builtbroken.mc.framework.json.imp.JsonLoadPhase;
+import com.builtbroken.mc.framework.json.loading.JsonLoader;
 import com.builtbroken.mc.framework.multiblock.MultiBlockRenderHelper;
 import com.builtbroken.mc.lib.render.block.BlockRenderHandler;
 import com.builtbroken.mc.lib.world.map.block.ExtendedBlockDataManager;
@@ -143,7 +145,7 @@ public class ClientProxy extends CommonProxy
         super.loadJsonContentHandlers();
         JsonBlockListenerProcessor.addBuilder(new RotatableIconListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new JsonIconListener.Builder());
-
+        JsonLoader.addConverter(new JsonConverterModelCube());
 
         if (Engine.runningAsDev)
         {
