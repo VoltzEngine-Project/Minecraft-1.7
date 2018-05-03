@@ -12,6 +12,7 @@ import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.framework.multiblock.BlockMultiblock;
+import com.builtbroken.mc.framework.multiblock.IMultiBlockNodeListener;
 import com.builtbroken.mc.framework.multiblock.MultiBlockHelper;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayout;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayoutHandler;
@@ -66,7 +67,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public void update(long ticks)
     {
-        if(world().isServer())
+        if (world().isServer())
         {
             long offsetTick = (ticks + (Math.abs(this.xi() + this.yi() + this.zi())));
             if (ticks == 0 && buildFirstTick)
@@ -110,13 +111,22 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public void onMultiTileAdded(IMultiTile tileMulti)
     {
-        if (tileMulti instanceof TileEntity)
+        Pos pos = getOffset(tileMulti);
+        if (getLayoutOfMultiBlock().containsKey(pos))
         {
-            if (getLayoutOfMultiBlock().containsKey(new Pos(this).sub(new Pos((TileEntity) tileMulti))))
+            tileMulti.setHost(getMultiTileHost());
+            //Handle node
+            TileEntity host = getTileEntity();
+            if (host instanceof ITileNodeHost && ((ITileNodeHost) host).getTileNode() instanceof IMultiBlockNodeListener)
             {
-                tileMulti.setHost(getMultiTileHost());
+                ((IMultiBlockNodeListener) ((ITileNodeHost) host).getTileNode()).onMultiTileAdded(tileMulti, pos);
             }
         }
+    }
+
+    public Pos getOffset(IMultiTile tileMulti)
+    {
+        return new Pos(tileMulti.xi(), tileMulti.yi(), tileMulti.zi()).sub(new Pos(this).floor());
     }
 
     @Override
@@ -124,7 +134,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     {
         if (!_destroyingStructure && tileMulti instanceof TileEntity)
         {
-            Pos pos = new Pos((TileEntity) tileMulti).floor().sub(new Pos(this).floor());
+            Pos pos = getOffset(tileMulti);
             HashMap<IPos3D, String> map = getLayoutOfMultiBlock();
             if (map != null && map.containsKey(pos))
             {
@@ -133,7 +143,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
                 _destroyingStructure = false;
                 return true;
             }
-            else if(Engine.runningAsDev)
+            else if (Engine.runningAsDev)
             {
                 System.out.println("Error map was null");
             }
@@ -150,13 +160,24 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public boolean onMultiTileActivated(IMultiTile tile, EntityPlayer player, int side, float xHit, float yHit, float zHit)
     {
+        //Pass to handler
+        Pos pos = getOffset(tile);
+        TileEntity host = getTileEntity();
+        if (host instanceof ITileNodeHost && ((ITileNodeHost) host).getTileNode() instanceof IMultiBlockNodeListener)
+        {
+            return ((IMultiBlockNodeListener) ((ITileNodeHost) host).getTileNode()).onMultiTileActivated(tile, pos, player, side, xHit, yHit, zHit);
+        }
+
+        //Pass to tile
         Object tileEntity = getMultiTileHost();
         if (tileEntity instanceof IActivationListener)
         {
             return ((IActivationListener) tileEntity).onPlayerActivated(player, side, xHit, yHit, zHit);
         }
+
+        //Pass to block
         Block block = getBlock();
-        if(!(block instanceof BlockMultiblock))
+        if (!(block instanceof BlockMultiblock))
         {
             return block.onBlockActivated(world().unwrap(), xi(), yi(), zi(), player, side, xHit, yHit, zHit);
         }
@@ -246,7 +267,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public ActionResponse canPlaceAt(IEntityData entity)
     {
-        return (!doRotation ||MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity)), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
+        return (!doRotation || MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity)), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
     }
 
     @Override
