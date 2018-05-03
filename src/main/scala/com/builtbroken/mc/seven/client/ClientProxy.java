@@ -11,6 +11,7 @@ import com.builtbroken.mc.client.json.audio.AudioJsonProcessor;
 import com.builtbroken.mc.client.json.effects.EffectJsonProcessor;
 import com.builtbroken.mc.client.json.effects.EffectListJsonProcessor;
 import com.builtbroken.mc.client.json.models.ModelJsonProcessor;
+import com.builtbroken.mc.client.json.models.cube.BlockModelJsonProcessor;
 import com.builtbroken.mc.client.json.models.cube.JsonConverterModelCube;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.client.json.render.item.ItemJsonRenderer;
@@ -115,6 +116,7 @@ public class ClientProxy extends CommonProxy
         //Load in processors for client side json
         JsonContentLoader.INSTANCE.add(new TextureJsonProcessor());
         JsonContentLoader.INSTANCE.add(new ModelJsonProcessor());
+        JsonContentLoader.INSTANCE.add(new BlockModelJsonProcessor());
         JsonContentLoader.INSTANCE.add(new RenderJsonProcessor());
         JsonContentLoader.INSTANCE.add(new AudioJsonProcessor());
         JsonContentLoader.INSTANCE.add(EffectJsonProcessor.INSTANCE);
