@@ -5,6 +5,8 @@ import com.builtbroken.mc.client.json.IJsonRenderStateProvider;
 import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.client.json.render.item.RenderStateItem;
+import com.builtbroken.mc.framework.block.imp.BlockListenerKeys;
+import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.prefab.items.ItemBlockAbstract;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -95,7 +97,7 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
         {
             return false;
         }
-        else if (!getBlockBase().canPlaceBlockAt(player, world, x, y, z))
+        else if (!getBlockBase().canPlaceBlockAt(player, stack, world, x, y, z))
         {
             return false;
         }
@@ -129,8 +131,49 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
 
     @SideOnly(Side.CLIENT)
     @Override
+    public String getRenderStateKey(IItemRenderer.ItemRenderType renderType, String key, Object objectBeingRendered)
+    {
+        //Allow listeners to override
+        List<ITileEventListener> listeners = getBlockBase().listeners.get(BlockListenerKeys.JSON_RENDER_STATE);
+        if (listeners != null)
+        {
+            for (ITileEventListener listener : listeners)
+            {
+                if (listener instanceof IJsonRenderStateProvider)
+                {
+                    String id = ((IJsonRenderStateProvider) listener).getRenderStateKey(renderType, key, objectBeingRendered);
+                    if (id != null && !id.isEmpty())
+                    {
+                        return id;
+                    }
+                }
+            }
+        }
+
+        return getRenderStateKey(key);
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
     public String getRenderContentID(IItemRenderer.ItemRenderType renderType, Object objectBeingRendered)
     {
+        //Allow listeners to override
+        List<ITileEventListener> listeners = getBlockBase().listeners.get(BlockListenerKeys.JSON_RENDER_STATE);
+        if (listeners != null)
+        {
+            for (ITileEventListener listener : listeners)
+            {
+                if (listener instanceof IJsonRenderStateProvider)
+                {
+                    String id = ((IJsonRenderStateProvider) listener).getRenderContentID(renderType, objectBeingRendered);
+                    if (id != null && !id.isEmpty())
+                    {
+                        return id;
+                    }
+                }
+            }
+        }
+
         if (objectBeingRendered instanceof ItemStack)
         {
             return getRenderContentID((ItemStack) objectBeingRendered);
@@ -316,7 +359,6 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
      * @param stack - stack being rendered
      * @return key for the render ID
      */
-
     public String getRenderKey(ItemStack stack)
     {
         return null;

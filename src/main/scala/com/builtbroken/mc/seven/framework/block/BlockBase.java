@@ -688,7 +688,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
         return super.canPlaceBlockAt(world, x, y, z);
     }
 
-    public boolean canPlaceBlockAt(Entity entity, World world, int x, int y, int z)
+    public boolean canPlaceBlockAt(Entity entity, ItemStack stack, World world, int x, int y, int z)
     {
         ListenerIterator it = new ListenerIterator(world, x, y, z, this, "placement");
         while (it.hasNext())
@@ -696,7 +696,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
             ITileEventListener next = it.next();
             if (next instanceof IPlacementListener)
             {
-                if (((IPlacementListener) next).canPlaceAt(MinecraftWrapper.INSTANCE.get(entity)) == ActionResponse.CANCEL)
+                if (((IPlacementListener) next).canPlaceAt(MinecraftWrapper.INSTANCE.get(entity), stack) == ActionResponse.CANCEL)
                 {
                     return false;
                 }
