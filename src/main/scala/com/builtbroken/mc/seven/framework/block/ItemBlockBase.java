@@ -125,6 +125,21 @@ public class ItemBlockBase extends ItemBlockAbstract implements IJsonRenderState
     public List<String> getRenderContentIDs()
     {
         List<String> list = new ArrayList();
+        List<ITileEventListener> listeners = getBlockBase().listeners.get(BlockListenerKeys.JSON_RENDER_STATE);
+        if (listeners != null)
+        {
+            for (ITileEventListener listener : listeners)
+            {
+                if (listener instanceof IJsonRenderStateProvider)
+                {
+                    List<String> ids = ((IJsonRenderStateProvider) listener).getRenderContentIDs();
+                    if (ids != null)
+                    {
+                        list.addAll(ids);
+                    }
+                }
+            }
+        }
         list.add(getRenderContentID(0));
         return list;
     }
