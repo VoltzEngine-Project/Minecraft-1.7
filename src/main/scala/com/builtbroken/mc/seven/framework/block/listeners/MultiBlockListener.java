@@ -1,8 +1,10 @@
 package com.builtbroken.mc.seven.framework.block.listeners;
 
 import com.builtbroken.jlib.data.vector.IPos3D;
+import com.builtbroken.mc.api.IModObject;
 import com.builtbroken.mc.api.abstraction.entity.IEntityData;
 import com.builtbroken.mc.api.data.ActionResponse;
+import com.builtbroken.mc.api.items.listeners.IItemWithListeners;
 import com.builtbroken.mc.api.tile.access.IRotation;
 import com.builtbroken.mc.api.tile.multiblock.IMultiTile;
 import com.builtbroken.mc.api.tile.multiblock.IMultiTileHost;
@@ -12,15 +14,19 @@ import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.framework.json.loading.JsonProcessorData;
 import com.builtbroken.mc.framework.multiblock.BlockMultiblock;
-import com.builtbroken.mc.framework.multiblock.IMultiBlockNodeListener;
 import com.builtbroken.mc.framework.multiblock.MultiBlockHelper;
+import com.builtbroken.mc.framework.multiblock.listeners.IMultiBlockLayoutListener;
+import com.builtbroken.mc.framework.multiblock.listeners.IMultiBlockNodeListener;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayout;
 import com.builtbroken.mc.framework.multiblock.structure.MultiBlockLayoutHandler;
 import com.builtbroken.mc.imp.transform.vector.Location;
 import com.builtbroken.mc.imp.transform.vector.Pos;
 import com.builtbroken.mc.lib.helper.BlockUtility;
+import com.builtbroken.mc.seven.framework.block.BlockBase;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -35,10 +41,12 @@ import java.util.Map;
  */
 public class MultiBlockListener extends TileListener implements IBlockListener, IPlacementListener, IDestroyedListener, IUpdateListener, IMultiTileHost
 {
+    public static final String JSON_CONTENT_ID = "%contentID%";
+
     private boolean _destroyingStructure = false;
 
     @JsonProcessorData("layoutKey")
-    protected String layoutKey;
+    protected String _layoutKey;
 
     @JsonProcessorData("doRotation")
     protected boolean doRotation = false;
@@ -51,6 +59,13 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
 
     @JsonProcessorData(value = "directionMultiplier", type = "int")
     protected int directionMultiplier = 1;
+
+    public final Block block;
+
+    public MultiBlockListener(Block block)
+    {
+        this.block = block;
+    }
 
     @Override
     public List<String> getListenerKeys()
@@ -72,7 +87,6 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
             long offsetTick = (ticks + (Math.abs(this.xi() + this.yi() + this.zi())));
             if (ticks == 0 && buildFirstTick)
             {
-                layoutKey = layoutKey != null ? layoutKey.toLowerCase() : "";
                 if (MultiBlockHelper.canBuild(world().unwrap(), getMultiTileHost(), true))
                 {
                     MultiBlockHelper.buildMultiBlock(world().unwrap(), getMultiTileHost() != null ? getMultiTileHost() : this, true, true);
@@ -209,20 +223,21 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
             {
                 dir = ((IRotation) ((ITileNodeHost) tileEntity).getTileNode()).getDirection();
             }
-            return getLayoutOfMultiBlock(dir);
+            return getLayoutOfMultiBlock(dir, null);
         }
-        return MultiBlockLayoutHandler.get(layoutKey);
+        return MultiBlockLayoutHandler.get(getLayoutKey(null));
     }
 
-    protected HashMap<IPos3D, String> getLayoutOfMultiBlock(ForgeDirection dir)
+    protected HashMap<IPos3D, String> getLayoutOfMultiBlock(ForgeDirection dir, ItemStack stack)
     {
         if (dir != null && dir != ForgeDirection.UNKNOWN)
         {
-            final String key = layoutKey + "." + dir.name().toLowerCase();
+            final String key = getLayoutKey(stack) + "." + dir.name().toLowerCase();
+
             HashMap<IPos3D, String> directionalMap = MultiBlockLayoutHandler.get(key);
             if (directionalMap == null && directionOffset)
             {
-                HashMap<IPos3D, String> map = MultiBlockLayoutHandler.get(layoutKey);
+                HashMap<IPos3D, String> map = MultiBlockLayoutHandler.get(getLayoutKey(stack));
                 if (map != null)
                 {
                     directionalMap = new HashMap();
@@ -242,7 +257,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
             }
             return directionalMap;
         }
-        return MultiBlockLayoutHandler.get(layoutKey);
+        return MultiBlockLayoutHandler.get(getLayoutKey(stack));
     }
 
     @Override
@@ -265,9 +280,9 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     }
 
     @Override
-    public ActionResponse canPlaceAt(IEntityData entity)
+    public ActionResponse canPlaceAt(IEntityData entity, ItemStack stack)
     {
-        return (!doRotation || MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity)), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
+        return (!doRotation || MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity), stack), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
     }
 
     @Override
@@ -276,12 +291,80 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
         return true;
     }
 
+    public String getLayoutKey(ItemStack stack)
+    {
+        //Handling for item & nodes with listeners
+        if (stack != null)
+        {
+            if (stack.getItem() instanceof IItemWithListeners)
+            {
+                //TODO implement listener for item
+            }
+
+            //Get key via listeners on the block
+            if (stack.getItem() instanceof ItemBlock)
+            {
+                Block block = ((ItemBlock) stack.getItem()).field_150939_a;
+                if (block instanceof BlockBase)
+                {
+                    List<ITileEventListener> listeners = ((BlockBase) block).listeners.get(BlockListenerKeys.MULTI_BLOCK_LAYOUT_LISTENER);
+                    if(listeners != null)
+                    {
+                        for (ITileEventListener listener : listeners)
+                        {
+                            if (listener instanceof IMultiBlockLayoutListener)
+                            {
+                                String key = ((IMultiBlockLayoutListener) listener).getMultiBlockLayoutKey(stack);
+                                if (key != null && !key.isEmpty())
+                                {
+                                    return key;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //Handle content ID
+        if (_layoutKey != null && _layoutKey.contains(JSON_CONTENT_ID))
+        {
+            String contentID = "base";
+            TileEntity tile = getTileEntity();
+            if (tile instanceof ITileNodeHost)
+            {
+                contentID = ((ITileNodeHost) tile).getTileNode().getContentID();
+            }
+            else if (tile instanceof IModObject)
+            {
+                contentID = ((IModObject) tile).getContentID();
+            }
+            else if (block instanceof IModObject)
+            {
+                contentID = ((IModObject) block).getContentID();
+            }
+            return _layoutKey.replace(JSON_CONTENT_ID, contentID);
+        }
+
+        //Handle node overrides
+        TileEntity tile = getTileEntity();
+        if (tile instanceof ITileNodeHost)
+        {
+            ITileNode node = ((ITileNodeHost) tile).getTileNode();
+            if (node instanceof IMultiBlockNodeListener && ((IMultiBlockNodeListener) node).getMultiBlockLayoutKey() != null)
+            {
+                return ((IMultiBlockNodeListener) node).getMultiBlockLayoutKey();
+            }
+        }
+        return _layoutKey;
+    }
+
     public static class Builder implements ITileEventListenerBuilder
     {
         @Override
         public ITileEventListener createListener(Block block)
         {
-            return new MultiBlockListener();
+            return new MultiBlockListener(block);
         }
 
         @Override
