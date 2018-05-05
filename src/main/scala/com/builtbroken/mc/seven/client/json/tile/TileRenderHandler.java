@@ -10,6 +10,7 @@ import com.builtbroken.mc.client.json.imp.IModelState;
 import com.builtbroken.mc.client.json.imp.IRenderState;
 import com.builtbroken.mc.client.json.render.RenderData;
 import com.builtbroken.mc.core.Engine;
+import com.builtbroken.mc.framework.block.imp.BlockListenerKeys;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.lib.helper.ReflectionUtility;
 import com.builtbroken.mc.seven.framework.block.BlockBase;
@@ -206,6 +207,38 @@ public class TileRenderHandler extends TileEntitySpecialRenderer
                 if (data != null)
                 {
                     return data;
+                }
+            }
+        }
+        else if (tile.getBlockType() instanceof IJsonRenderStateProvider)
+        {
+            String id = ((IJsonRenderStateProvider) tile.getBlockType()).getRenderContentID(IItemRenderer.ItemRenderType.ENTITY, tile);
+            if (id != null)
+            {
+                RenderData data = ClientDataHandler.INSTANCE.getRenderData(id);
+                if (data != null)
+                {
+                    return data;
+                }
+            }
+        }
+        else if (tile.getBlockType() instanceof BlockBase)
+        {
+            ListenerIterator iterator = new ListenerIterator(tile.getWorldObj(), tile.xCoord, tile.yCoord, tile.zCoord, (BlockBase) tile.getBlockType(), BlockListenerKeys.JSON_RENDER_STATE);
+            while (iterator.hasNext())
+            {
+                ITileEventListener listener = iterator.next();
+                if (listener instanceof IJsonRenderStateProvider)
+                {
+                    String id = ((IJsonRenderStateProvider) listener).getRenderContentID(IItemRenderer.ItemRenderType.ENTITY, tile);
+                    if (id != null)
+                    {
+                        RenderData data = ClientDataHandler.INSTANCE.getRenderData(id);
+                        if (data != null)
+                        {
+                            return data;
+                        }
+                    }
                 }
             }
         }
