@@ -51,6 +51,9 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @JsonProcessorData("doRotation")
     protected boolean doRotation = false;
 
+    @JsonProcessorData("useItemStack")
+    protected boolean useItemStack = false;
+
     @JsonProcessorData("buildFirstTick")
     protected boolean buildFirstTick = true;
 
@@ -230,7 +233,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
 
     protected HashMap<IPos3D, String> getLayoutOfMultiBlock(ForgeDirection dir, ItemStack stack)
     {
-        if (dir != null && dir != ForgeDirection.UNKNOWN)
+        if (doRotation && dir != null && dir != ForgeDirection.UNKNOWN)
         {
             final String key = getLayoutKey(stack) + "." + dir.name().toLowerCase();
 
@@ -276,13 +279,20 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
     @Override
     public ActionResponse canPlaceAt()
     {
-        return (doRotation || MultiBlockHelper.canBuild(world().unwrap(), getMultiTileHost() != null ? getMultiTileHost() : this, true)) ? ActionResponse.DO : ActionResponse.CANCEL;
+        //Due to rotation and stack checks, we have to skip or it will always fail due to missing data
+        return (doRotation || useItemStack || canBuild(null, null)) ? ActionResponse.DO : ActionResponse.CANCEL;
     }
 
     @Override
     public ActionResponse canPlaceAt(IEntityData entity, ItemStack stack)
     {
-        return (!doRotation || MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), null, getLayoutOfMultiBlock(BlockUtility.determineForgeDirection(entity), stack), true)) ? ActionResponse.DO : ActionResponse.CANCEL;
+        //If comparing with rotation or stack check layout, if not skip and let check run in canPlaceAt()
+        return (!doRotation && !useItemStack || canBuild(BlockUtility.determineForgeDirection(entity), stack)) ? ActionResponse.DO : ActionResponse.CANCEL;
+    }
+
+    protected boolean canBuild(ForgeDirection direction, ItemStack stack)
+    {
+        return MultiBlockHelper.canBuild(world().unwrap(), xi(), yi(), zi(), getMultiTileHost() != null ? getMultiTileHost() : this, getLayoutOfMultiBlock(direction, stack), true);
     }
 
     @Override
@@ -308,7 +318,7 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
                 if (block instanceof BlockBase)
                 {
                     List<ITileEventListener> listeners = ((BlockBase) block).listeners.get(BlockListenerKeys.MULTI_BLOCK_LAYOUT_LISTENER);
-                    if(listeners != null)
+                    if (listeners != null)
                     {
                         for (ITileEventListener listener : listeners)
                         {
@@ -354,6 +364,27 @@ public class MultiBlockListener extends TileListener implements IBlockListener, 
             if (node instanceof IMultiBlockNodeListener && ((IMultiBlockNodeListener) node).getMultiBlockLayoutKey() != null)
             {
                 return ((IMultiBlockNodeListener) node).getMultiBlockLayoutKey();
+            }
+        }
+
+        //Allow listeners to hook
+        if (block instanceof BlockBase && world().unwrap().blockExists(xi(), yi(), zi()))
+        {
+            ListenerIterator it = new ListenerIterator(world().unwrap(), xi(), yi(), zi(), ((BlockBase) block), BlockListenerKeys.MULTI_BLOCK_LAYOUT_LISTENER);
+            while (it.hasNext())
+            {
+                while (it.hasNext())
+                {
+                    ITileEventListener next = it.next();
+                    if (next instanceof IMultiBlockLayoutListener)
+                    {
+                        String key = ((IMultiBlockLayoutListener) next).getMultiBlockLayoutKey();
+                        if (key != null && !key.isEmpty())
+                        {
+                            return key;
+                        }
+                    }
+                }
             }
         }
         return _layoutKey;

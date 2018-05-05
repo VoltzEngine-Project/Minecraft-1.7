@@ -720,7 +720,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 }
             }
         }
-        return this.canPlaceBlockOnSide(world, x, y, z, side);
+        return super.canReplace(world, x, y, z, side, stack);
     }
 
     @Override
