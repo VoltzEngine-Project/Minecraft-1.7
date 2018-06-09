@@ -25,9 +25,6 @@ import com.builtbroken.mc.core.content.resources.load.*;
 import com.builtbroken.mc.core.content.tool.ItemScrewdriver;
 import com.builtbroken.mc.core.content.tool.ItemSheetMetalTools;
 import com.builtbroken.mc.core.content.tool.ItemSimpleCraftingTool;
-import com.builtbroken.mc.core.content.tool.screwdriver.ToolMode;
-import com.builtbroken.mc.core.content.tool.screwdriver.ToolModeGeneral;
-import com.builtbroken.mc.core.content.tool.screwdriver.ToolModeRotation;
 import com.builtbroken.mc.core.content.world.DevWorldLoader;
 import com.builtbroken.mc.core.handler.InteractionHandler;
 import com.builtbroken.mc.core.handler.SaveManager;
@@ -307,9 +304,6 @@ public class EngineLoaderMod extends EngineLoader
 
         //Map commands
         ConfigValues.enableExtendedMetaPacketSync = getConfig().getBoolean("EnableExtendedBlockMetaPacketSync", "Map_data", true, "While on extended meta values will be synced to the client. Can be disabled on both sides to save on bandwidth but will result in rendering issues if disabled.");
-
-        ToolMode.REGISTRY.add(new ToolModeGeneral());
-        ToolMode.REGISTRY.add(new ToolModeRotation());
 
         /**
          * Multiblock Handling
