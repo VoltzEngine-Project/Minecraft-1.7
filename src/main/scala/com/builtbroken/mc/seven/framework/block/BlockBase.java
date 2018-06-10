@@ -760,10 +760,11 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     {
         try
         {
+            final ItemStack heldItem = player.getHeldItem();
             boolean activated = false;
 
             Object tile = getTile(world, x, y, z);
-            if (WrenchUtility.isUsableWrench(player, player.inventory.getCurrentItem(), x, y, z))
+            if (WrenchUtility.isUsableWrench(player, heldItem, x, y, z))
             {
                 ListenerIterator it = new ListenerIterator(world, x, y, z, this, "wrench");
                 while (it.hasNext())
@@ -776,12 +777,17 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 }
                 if (activated)
                 {
-                    WrenchUtility.damageWrench(player, player.inventory.getCurrentItem(), x, y, z);
+                    WrenchUtility.damageWrench(player, heldItem, x, y, z);
                 }
                 if (activated)
                 {
                     return true;
                 }
+            }
+            //We do not want to open GUIs with the wrench
+            else if (heldItem != null && heldItem.getItem() == Engine.itemWrench)
+            {
+                return false;
             }
 
             //TODO move to listener to prevent usage of IGuiTile in special cases
