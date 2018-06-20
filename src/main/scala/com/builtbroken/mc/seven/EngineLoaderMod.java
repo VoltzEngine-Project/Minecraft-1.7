@@ -31,6 +31,7 @@ import com.builtbroken.mc.core.handler.SaveManager;
 import com.builtbroken.mc.core.handler.TileTaskTickHandler;
 import com.builtbroken.mc.core.registry.ModManager;
 import com.builtbroken.mc.framework.access.global.GlobalAccessSystem;
+import com.builtbroken.mc.framework.computer.DataSystemProxy;
 import com.builtbroken.mc.framework.entity.effect.EntityEffectHandler;
 import com.builtbroken.mc.framework.entity.effect.effects.BleedingEffect;
 import com.builtbroken.mc.framework.explosive.ExplosiveRegistry;
@@ -328,6 +329,9 @@ public class EngineLoaderMod extends EngineLoader
 
         //Register effects
         EntityEffectHandler.addEffectCreator(EntityEffectHandler.BLEEDING_EFFECT, e -> new BleedingEffect(e));
+
+        loader.applyModule(new DataSystemProxy());
+
         //Call loader
         loader.preInit();
         //Claim json content
