@@ -3,6 +3,7 @@ package com.builtbroken.mc.seven.framework.json.recipe.replace;
 import com.builtbroken.mc.core.Engine;
 import com.builtbroken.mc.core.References;
 import com.builtbroken.mc.framework.json.JsonContentLoader;
+import com.builtbroken.mc.framework.json.conversion.data.mc.JsonConverterItem;
 import com.builtbroken.mc.framework.json.imp.IJsonGenObject;
 import com.builtbroken.mc.framework.json.imp.IJsonProcessor;
 import com.builtbroken.mc.framework.json.processors.JsonProcessor;
@@ -60,7 +61,16 @@ public class JsonRecipeReplacementProcessor extends AbstractLoadable implements 
 
         String type = jsonData.getAsJsonPrimitive("type").getAsString();
         String craftingType = jsonData.getAsJsonPrimitive("craftingType").getAsString();
-        String item = jsonData.getAsJsonPrimitive("item").getAsString();
+
+        Object item;
+        if (jsonData.get("item").isJsonObject())
+        {
+            item = JsonConverterItem.fromJson(jsonData.getAsJsonObject("item"));
+        }
+        else
+        {
+            item = jsonData.getAsJsonPrimitive("item").getAsString();
+        }
 
         JsonRecipeReplacementData replacementDataEntry = new JsonRecipeReplacementData(this, item, craftingType, true);
         //Remove and replace call

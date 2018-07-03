@@ -21,15 +21,15 @@ public class JsonRecipeReplacementData extends JsonGenData
     /** Toggle to clear all recipes, currently always true */
     public boolean remove_all;
     /** String value of the recipe output to match for removal */
-    public String outputValue;
+    public Object outputValue;
     /** Type of crafting recipe to remove */
     public String craftingType;
     /** Object value for recipe output to match for removal */
-    public Object output;
+    public Object output; //Converted on load complete
     /** Json data that will need processed after recipe removal is finished */
     public HashMap<String, JsonElement> subProcessingData = new HashMap();
 
-    public JsonRecipeReplacementData(IJsonProcessor processor, String output, String type, boolean remove_all)
+    public JsonRecipeReplacementData(IJsonProcessor processor, Object output, String type, boolean remove_all)
     {
         super(processor);
         this.outputValue = output;
@@ -55,7 +55,7 @@ public class JsonRecipeReplacementData extends JsonGenData
         }
         else if (output instanceof ItemStack)
         {
-            return InventoryUtility.stacksMatch(result, (ItemStack) output);
+            return InventoryUtility.stacksMatch(result, (ItemStack) output); //TODO add NBT check
         }
         //Ore name
         else if (output instanceof String)
