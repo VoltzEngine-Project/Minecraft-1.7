@@ -48,6 +48,8 @@ import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Block generated through a json based file format... Used to reduce dependency on code
@@ -169,7 +171,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public boolean canSilkHarvest(World world, EntityPlayer player, int x, int y, int z, int metadata)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -196,7 +198,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
             boolean ignoreNormalDrop = false;
 
             //Allow listeners to override default drops
-            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "blockStack");
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BLOCK_STACK);
             while (it.hasNext())
             {
                 ITileEventListener next = it.next();
@@ -346,7 +348,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
         if (toolLevel >= desiredHarvestLevel)
         {
             //Check listeners
-            ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
             while (it.hasNext())
             {
                 ITileEventListener next = it.next();
@@ -522,7 +524,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onBlockAdded(World world, int x, int y, int z)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "placement");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.PLACEMENT);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -536,7 +538,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entityLiving, ItemStack itemStack)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "placement");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.PLACEMENT);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -550,7 +552,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onPostBlockPlaced(World world, int x, int y, int z, int metadata)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "placement");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.PLACEMENT);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -567,7 +569,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion ex)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -581,7 +583,8 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int par6)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -590,13 +593,21 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 ((IDestroyedListener) next).breakBlock(block, par6);
             }
         }
+
+        //Clear tile in super
         super.breakBlock(world, x, y, z, block, par6);
+
+        //If block still exists, remove
+        if (world.getBlock(x, y, z) == block)
+        {
+            world.setBlockToAir(x, y, z);
+        }
     }
 
     @Override
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "break");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
         boolean removed = false;
         while (it.hasNext())
         {
@@ -609,7 +620,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 }
             }
         }
-        return super.removedByPlayer(world, player, x, y, z, willHarvest) || removed;
+        return removed || super.removedByPlayer(world, player, x, y, z, willHarvest);
     }
 
     @Override
@@ -1205,17 +1216,39 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
-        ArrayList<ItemStack> items = super.getDrops(world, x, y, z, metadata, fortune);
+        ArrayList<ItemStack> items;
 
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "blockStack");
-        while (it.hasNext())
+        //Try to get stack from listeners
+        ItemStack blockStack = getFromListener(world, x, y, z, BlockListenerKeys.BLOCK_STACK, listener -> {
+            if (listener instanceof IBlockStackListener)
+            {
+                ItemStack stack = ((IBlockStackListener) listener).toStack();
+                if (stack != null)
+                {
+                    return stack;
+                }
+            }
+            return null;
+        });
+
+        //If no listener to give stack, do normal drop
+        if (blockStack == null)
         {
-            ITileEventListener next = it.next();
+            items = super.getDrops(world, x, y, z, metadata, fortune);
+        }
+        else
+        {
+            items = new ArrayList();
+            items.add(blockStack);
+        }
+
+        //Reset iterator and collect drops
+        forListener(world, x, y, z, BlockListenerKeys.BLOCK_STACK, next -> {
             if (next instanceof IBlockStackListener)
             {
                 ((IBlockStackListener) next).collectDrops(items, metadata, fortune);
             }
-        }
+        });
         return items;
     }
 
@@ -1255,9 +1288,9 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     public void getSubBlocks(Item item, CreativeTabs creativeTabs, List list)
     {
         super.getSubBlocks(item, creativeTabs, list);
-        if (listeners.containsKey("blockStack"))
+        if (listeners.containsKey(BlockListenerKeys.BLOCK_STACK))
         {
-            for (ITileEventListener listener : listeners.get("blockStack"))
+            for (ITileEventListener listener : listeners.get(BlockListenerKeys.BLOCK_STACK))
             {
                 if (listener instanceof IBlockStackListener)
                 {
@@ -1322,7 +1355,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     protected void dropBlockAsItem(World world, int x, int y, int z, ItemStack itemStack)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this, "blockStack");
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BLOCK_STACK);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
@@ -1415,5 +1448,44 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
                 }
             }
         }
+    }
+
+    public void forListener(World world, int x, int y, int z, String key, Function<ITileEventListener, Boolean> logicToRun)
+    {
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, key);
+        while (it.hasNext())
+        {
+            ITileEventListener listener = it.next();
+            //Run, if true exit loop
+            if (logicToRun.apply(listener))
+            {
+                break;
+            }
+        }
+    }
+
+    public <R extends Object> R getFromListener(World world, int x, int y, int z, String key, Function<ITileEventListener, R> logicToRun)
+    {
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, key);
+        while (it.hasNext())
+        {
+            ITileEventListener listener = it.next();
+            //Run, if true exit loop
+            Object object = logicToRun.apply(listener);
+            if (object != null)
+            {
+                return (R) object;
+            }
+
+        }
+        return null;
+    }
+
+    public void forListener(World world, int x, int y, int z, String key, Consumer<ITileEventListener> logicToRun)
+    {
+        forListener(world, x, y, z, key, a -> {
+            logicToRun.accept(a);
+            return false;
+        });
     }
 }
