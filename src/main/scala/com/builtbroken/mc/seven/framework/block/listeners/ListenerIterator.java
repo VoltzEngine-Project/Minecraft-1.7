@@ -1,10 +1,10 @@
 package com.builtbroken.mc.seven.framework.block.listeners;
 
-import com.builtbroken.mc.framework.block.imp.IBlockListener;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
-import com.builtbroken.mc.seven.framework.block.BlockBase;
+import com.builtbroken.mc.framework.block.imp.IBlockListener;
 import com.builtbroken.mc.framework.block.imp.ITileEventListener;
 import com.builtbroken.mc.framework.block.imp.ITileWithListeners;
+import com.builtbroken.mc.seven.framework.block.BlockBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -21,9 +21,9 @@ public class ListenerIterator implements Iterator<ITileEventListener>, Iterable<
     private World world;
     private IBlockAccess access;
 
-    private int x;
-    private int y;
-    private int z;
+    private final int x;
+    private final int y;
+    private final int z;
 
     private int index = -1;
     private int nextIndex = -1;
@@ -31,7 +31,7 @@ public class ListenerIterator implements Iterator<ITileEventListener>, Iterable<
 
     private BlockBase blockBase;
     private TileEntity tile;
-    private String key;
+    private final String key;
 
     public ListenerIterator(World world, int x, int y, int z, BlockBase blockBase, String key)
     {
@@ -51,6 +51,13 @@ public class ListenerIterator implements Iterator<ITileEventListener>, Iterable<
         this.z = z;
         this.blockBase = blockBase;
         this.key = key;
+    }
+
+    public void reset()
+    {
+        index = -1;
+        nextIndex = -1;
+        size = -1;
     }
 
     @Override
@@ -163,7 +170,7 @@ public class ListenerIterator implements Iterator<ITileEventListener>, Iterable<
             //Inject location
             if (re instanceof IBlockListener)
             {
-                if(world != null)
+                if (world != null)
                 {
                     ((IBlockListener) re).inject(world, xi(), yi(), zi());
                 }
