@@ -389,6 +389,7 @@ public class EngineLoaderMod extends EngineLoader
         JsonBlockListenerProcessor.addBuilder(new AdjacentPlacementListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new PathPlacementListener.Builder());
         JsonBlockListenerProcessor.addBuilder(new SilkHarvestListener.Builder());
+        JsonBlockListenerProcessor.addBuilder(new InventoryBreakListener.Builder());
         getProxy().loadJsonContentHandlers();
     }
 

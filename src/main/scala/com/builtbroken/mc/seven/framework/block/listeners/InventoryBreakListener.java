@@ -2,13 +2,15 @@ package com.builtbroken.mc.seven.framework.block.listeners;
 
 import com.builtbroken.mc.api.tile.provider.IInventoryProvider;
 import com.builtbroken.mc.api.tile.node.ITileNodeHost;
-import com.builtbroken.mc.framework.block.imp.IBlockListener;
-import com.builtbroken.mc.framework.block.imp.IDestroyedListener;
+import com.builtbroken.mc.framework.block.imp.*;
 import com.builtbroken.mc.prefab.inventory.InventoryIterator;
 import com.builtbroken.mc.prefab.inventory.InventoryUtility;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles unloading the inventory onto the group when a tile is broken
@@ -52,6 +54,29 @@ public class InventoryBreakListener extends TileListener implements IDestroyedLi
                 InventoryUtility.dropItemStack(world().unwrap(), xi(), yi(), zi(), stack, 0, 0);
                 inventory.setInventorySlotContents(iterator.slot(), null);
             }
+        }
+    }
+
+    @Override
+    public List<String> getListenerKeys()
+    {
+        List<String> list = new ArrayList();
+        list.add(BlockListenerKeys.BLOCK_STACK);
+        return list;
+    }
+
+    public static class Builder implements ITileEventListenerBuilder
+    {
+        @Override
+        public ITileEventListener createListener(Block block)
+        {
+            return new InventoryBreakListener();
+        }
+
+        @Override
+        public String getListenerKey()
+        {
+            return "inventoryBreak";
         }
     }
 }
