@@ -237,6 +237,12 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
             this.dropBlockAsItem(world, x, y, z, meta, i1);
             harvesters.set(null);
         }
+
+        //Remove block if it still exists
+        if (world.getBlock(x, y, z) == this)
+        {
+            world.setBlockToAir(x, y, z);
+        }
     }
 
     @Override
@@ -583,7 +589,6 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public void breakBlock(World world, int x, int y, int z, Block block, int par6)
     {
-
         ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.BREAK);
         while (it.hasNext())
         {
@@ -645,7 +650,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     {
         if (world instanceof World && !((World) world).isRemote && ((World) world).blockExists(x, y, z))
         {
-            ListenerIterator it = new ListenerIterator(world, x, y, z, this,  BlockListenerKeys.CHANGE);
+            ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.CHANGE);
             while (it.hasNext())
             {
                 ITileEventListener next = it.next();
@@ -666,7 +671,7 @@ public class BlockBase extends BlockContainer implements IJsonGenObject, ITileEn
     @Override
     public boolean canPlaceBlockOnSide(World world, int x, int y, int z, int side)
     {
-        ListenerIterator it = new ListenerIterator(world, x, y, z, this,  BlockListenerKeys.PLACEMENT);
+        ListenerIterator it = new ListenerIterator(world, x, y, z, this, BlockListenerKeys.PLACEMENT);
         while (it.hasNext())
         {
             ITileEventListener next = it.next();
