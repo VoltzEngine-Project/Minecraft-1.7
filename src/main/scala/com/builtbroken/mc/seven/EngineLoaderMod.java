@@ -623,8 +623,8 @@ public class EngineLoaderMod extends EngineLoader
         }
 
         //Make sure these events only run server side
-        MinecraftForge.EVENT_BUS.register(EntityEffectHandler.INSTANCE);
-        FMLCommonHandler.instance().bus().register(EntityEffectHandler.INSTANCE);
+        //TODO fix and re-enable MinecraftForge.EVENT_BUS.register(EntityEffectHandler.INSTANCE);
+        //TODO fix and re-enable FMLCommonHandler.instance().bus().register(EntityEffectHandler.INSTANCE);
     }
 
     @Mod.EventHandler
